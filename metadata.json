@@ -1,0 +1,5 @@
+{
+  "name": "Annual Result Generator",
+  "description": "A standalone application to generate annual academic results with PDF export.",
+  "requestFramePermissions": []
+}
