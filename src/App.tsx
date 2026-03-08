@@ -177,34 +177,34 @@ export default function App() {
               <GraduationCap className="w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-[#1C1E21]">Annual Result Generator</h1>
-              <p className="text-[#65676B] text-xs font-medium">Indrayani Educational Institutions</p>
+              <h1 className="text-lg sm:text-xl font-bold text-[#1C1E21]">Annual Result Generator</h1>
+              <p className="text-[#65676B] text-[10px] sm:text-xs font-medium">Indrayani Educational Institutions</p>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2">
             <button 
               onClick={() => setIsPreviewOpen(true)}
-              className="px-4 py-2 text-xs font-bold text-[#1877F2] bg-[#E7F3FF] hover:bg-[#DBE7F2] rounded-lg transition-colors flex items-center gap-2"
+              className="px-3 sm:px-4 py-2 text-[10px] sm:text-xs font-bold text-[#1877F2] bg-[#E7F3FF] hover:bg-[#DBE7F2] rounded-lg transition-colors flex items-center justify-center gap-2"
             >
-              <Eye className="w-4 h-4" /> Preview
+              <Eye className="w-4 h-4" /> <span className="hidden xs:inline">Preview</span>
             </button>
             <button 
               onClick={() => setIsManagingSubjects(!isManagingSubjects)}
-              className="px-4 py-2 text-xs font-bold text-[#4B4F56] bg-[#E4E6EB] hover:bg-[#D8DADF] rounded-lg transition-colors flex items-center gap-2"
+              className="px-3 sm:px-4 py-2 text-[10px] sm:text-xs font-bold text-[#4B4F56] bg-[#E4E6EB] hover:bg-[#D8DADF] rounded-lg transition-colors flex items-center justify-center gap-2"
             >
-              <Settings className="w-4 h-4" /> {isManagingSubjects ? 'Close Manager' : 'Manage Subjects'}
+              <Settings className="w-4 h-4" /> <span className="hidden xs:inline">{isManagingSubjects ? 'Close' : 'Manage'}</span>
             </button>
             <button 
               onClick={() => setData(INITIAL_DATA)}
-              className="px-4 py-2 text-xs font-bold text-[#FA3E3E] bg-[#FEEBEB] hover:bg-[#FCD9D9] rounded-lg transition-colors flex items-center gap-2"
+              className="px-3 sm:px-4 py-2 text-[10px] sm:text-xs font-bold text-[#FA3E3E] bg-[#FEEBEB] hover:bg-[#FCD9D9] rounded-lg transition-colors flex items-center justify-center gap-2"
             >
-              <Trash2 className="w-4 h-4" /> Reset
+              <Trash2 className="w-4 h-4" /> <span className="hidden xs:inline">Reset</span>
             </button>
             <button 
               onClick={generatePDF}
-              className="px-5 py-2 text-xs font-bold text-white bg-[#1877F2] hover:bg-[#166FE5] rounded-lg shadow-sm transition-all active:scale-95 flex items-center gap-2"
+              className="px-3 sm:px-5 py-2 text-[10px] sm:text-xs font-bold text-white bg-[#1877F2] hover:bg-[#166FE5] rounded-lg shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2"
             >
-              <Download className="w-4 h-4" /> Generate PDF
+              <Download className="w-4 h-4" /> <span className="hidden xs:inline">PDF</span>
             </button>
           </div>
         </header>
@@ -459,29 +459,29 @@ export default function App() {
                     <p className="text-[10px] text-[#65676B] font-medium uppercase tracking-wider">A4 Standard Layout</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2">
                   <button 
                     onClick={handlePrint}
-                    className="px-4 py-2 text-xs font-bold text-[#4B4F56] bg-[#E4E6EB] hover:bg-[#D8DADF] rounded-lg flex items-center gap-2 transition-colors"
+                    className="p-2 sm:px-4 sm:py-2 text-xs font-bold text-[#4B4F56] bg-[#E4E6EB] hover:bg-[#D8DADF] rounded-lg flex items-center gap-2 transition-colors"
                   >
-                    <Printer className="w-4 h-4" /> Print
+                    <Printer className="w-4 h-4" /> <span className="hidden sm:inline">Print</span>
                   </button>
                   <button 
                     onClick={generatePDF}
-                    className="px-4 py-2 text-xs font-bold text-white bg-[#1877F2] hover:bg-[#166FE5] rounded-lg flex items-center gap-2 shadow-sm"
+                    className="p-2 sm:px-4 sm:py-2 text-xs font-bold text-white bg-[#1877F2] hover:bg-[#166FE5] rounded-lg flex items-center gap-2 shadow-sm"
                   >
-                    <Download className="w-4 h-4" /> Download PDF
+                    <Download className="w-4 h-4" /> <span className="hidden sm:inline">Download</span>
                   </button>
                   <button 
                     onClick={() => setIsPreviewOpen(false)} 
-                    className="p-2 hover:bg-[#F0F2F5] rounded-full transition-colors text-[#65676B]"
+                    className="p-1.5 sm:p-2 hover:bg-[#F0F2F5] rounded-full transition-colors text-[#65676B]"
                   >
-                    <X className="w-6 h-6" />
+                    <X className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
                 </div>
               </div>
-              <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-[#F0F2F5] flex justify-center" id="report-container">
-                <div className="shadow-2xl bg-white transform scale-[0.5] sm:scale-[0.7] md:scale-[0.85] lg:scale-100 origin-top transition-transform duration-300" id="report-to-print">
+              <div className="flex-1 overflow-auto p-2 sm:p-4 md:p-8 bg-[#F0F2F5] flex justify-center items-start" id="report-container">
+                <div className="shadow-2xl bg-white transform scale-[0.35] xs:scale-[0.45] sm:scale-[0.65] md:scale-[0.8] lg:scale-100 origin-top transition-transform duration-300" id="report-to-print">
                   <ReportContent data={data} schoolName={schoolName} />
                 </div>
               </div>
@@ -509,7 +509,7 @@ function ReportContent({ data, schoolName }: { data: StudentData, schoolName: st
             <img src="https://i.ibb.co/zTgknf89/logo1jp.jpg" alt="Logo" className="h-20 w-auto" referrerPolicy="no-referrer" />
           </div>
           <p className="text-[10px] font-bold uppercase tracking-widest">SHREE GANESH EDUCATION ACADEMY'S</p>
-          <h1 className="text-2xl font-black text-[#F27D26] uppercase leading-tight">{schoolName}</h1>
+          <h1 className="text-3xl font-serif font-black text-[#F27D26] uppercase leading-tight tracking-tight italic">{schoolName}</h1>
           <p className="text-[9px] font-bold uppercase">SECTOR 18, KOPARKHAIRANE, NAVI MUMBAI | UDISE: 27211003415</p>
           <div className="inline-block border border-black px-8 py-1 mt-2">
             <p className="text-sm font-black uppercase">ANNUAL PROGRESS CARD 2024-25</p>
