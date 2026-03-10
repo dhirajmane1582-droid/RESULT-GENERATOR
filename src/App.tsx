@@ -66,7 +66,7 @@ const INITIAL_DATA: StudentData = {
   overallPercentage: '',
   result: 'PASS',
   promotedTo: '',
-  schoolReopens: '11TH JUNE 2025',
+  schoolReopens: '11TH JUNE 2026',
   subjects: [...DEFAULT_SUBJECTS],
   remarks: {
     sem1: { specialImprovements: '', hobbies: '', necessaryImprovement: '' },
@@ -534,7 +534,7 @@ export default function App() {
 function ReportContent({ data, schoolName, isBW = false }: { data: StudentData, schoolName: string, isBW?: boolean }) {
   return (
     <div className={`w-[210mm] h-[297mm] bg-white p-[10mm] text-[#000000] font-sans relative overflow-hidden ${isBW ? 'grayscale-report' : ''}`} data-report-content>
-      <div className="border-[2.5px] border-black p-6 h-full flex flex-col relative">
+      <div className="border-[2.5px] border-black pt-6 px-6 pb-2 h-full flex flex-col relative">
         {/* Decorative Corner Marks */}
         <div className={`absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#1877F2] -m-[2.5px] ${isBW ? 'hidden' : ''}`} />
         <div className={`absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#1877F2] -m-[2.5px] ${isBW ? 'hidden' : ''}`} />
@@ -546,20 +546,20 @@ function ReportContent({ data, schoolName, isBW = false }: { data: StudentData, 
           <div className="flex justify-center mb-1">
             <img src="https://i.ibb.co/zTgknf89/logo1jp.jpg" alt="Logo" className="h-16 w-auto" referrerPolicy="no-referrer" />
           </div>
-          <p className={`text-[15px] font-black uppercase tracking-[0.25em] ${isBW ? 'text-black' : 'text-[#4B4F56]'}`}>SHREE GANESH EDUCATION ACADEMY'S</p>
+          <p className={`text-[14px] font-black uppercase tracking-[0.3em] ${isBW ? 'text-black' : 'text-[#4B4F56]'}`}>SHREE GANESH EDUCATION ACADEMY'S</p>
           
-          <div className="py-1 flex justify-center px-4">
-            <h1 className={`text-[38px] font-serif font-black uppercase leading-[1.1] tracking-tight italic text-center max-w-full break-words ${isBW ? 'text-black' : 'text-[#F27D26]'}`}>
+          <div className="py-2 flex justify-center overflow-hidden">
+            <h1 className={`text-[36px] font-serif font-black uppercase leading-none tracking-tight italic whitespace-nowrap ${isBW ? 'text-black' : 'text-[#F27D26]'}`}>
               {schoolName}
             </h1>
           </div>
           
-          <p className={`text-[14px] font-bold uppercase tracking-wide ${isBW ? 'text-black' : 'text-[#65676B]'}`}>SECTOR 18, KOPARKHAIRANE, NAVI MUMBAI | UDISE: 27211003415</p>
+          <p className={`text-[12px] font-bold uppercase tracking-widest ${isBW ? 'text-black' : 'text-[#65676B]'}`}>SECTOR 18, KOPARKHAIRANE, NAVI MUMBAI | UDISE: 27211003415</p>
           
           <div className="w-full h-[2px] bg-black my-3" />
           
-          <div className={`inline-block border-[1.5px] border-black px-12 py-2 mt-1 ${isBW ? 'bg-white' : 'bg-[#F0F2F5]'}`}>
-            <p className={`text-lg font-black uppercase tracking-[0.1em] ${isBW ? 'text-black' : 'text-[#1877F2]'}`}>ANNUAL PROGRESS CARD 2024-25</p>
+          <div className={`inline-block border-[2px] border-black px-14 py-2.5 mt-1 ${isBW ? 'bg-white' : 'bg-[#E7F3FF]'}`}>
+            <p className={`text-lg font-black uppercase tracking-[0.15em] ${isBW ? 'text-black' : 'text-[#1877F2]'}`}>ANNUAL PROGRESS CARD 2025-26</p>
           </div>
         </div>
 
@@ -650,15 +650,15 @@ function ReportContent({ data, schoolName, isBW = false }: { data: StudentData, 
         </div>
 
         {/* PDF Result Section */}
-        <div className={`border-[1.5px] border-black p-4 text-center space-y-1 mb-6 ${isBW ? 'bg-white' : 'bg-[#F0F2F5]'}`}>
-          <p className="text-base font-black uppercase">
-            RESULT: <span className={isBW ? 'text-black' : 'text-[#FA3E3E]'}>{data.result}</span> | PROMOTED TO: <span className={isBW ? 'text-black' : 'text-[#F27D26]'}>{data.promotedTo}</span>
+        <div className={`border-[2px] border-black p-4 text-center space-y-1 mb-4 ${isBW ? 'bg-white' : 'bg-[#F7F8FA]'}`}>
+          <p className="text-lg font-black uppercase">
+            RESULT: <span className={isBW ? 'text-black' : 'text-[#FA3E3E]'}>{data.result}</span> | PROMOTED TO: <span className={isBW ? 'text-black' : 'text-[#1877F2]'}>{data.promotedTo}</span>
           </p>
-          <p className="text-[11px] font-black uppercase tracking-[0.2em]">SCHOOL REOPENS: {data.schoolReopens}</p>
+          <p className={`text-[12px] font-black uppercase tracking-[0.25em] ${isBW ? 'text-black' : 'text-[#65676B]'}`}>SCHOOL REOPENS: {data.schoolReopens}</p>
         </div>
 
         {/* PDF Signatures */}
-        <div className="mt-auto grid grid-cols-2 gap-24 px-12 pb-2">
+        <div className="mt-auto grid grid-cols-2 gap-24 px-12 pb-0">
           <div className="border-t-[1.5px] border-black pt-2 text-center">
             <p className="text-[11px] font-black uppercase tracking-widest">CLASS TEACHER'S SIGN</p>
           </div>
