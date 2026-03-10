@@ -78,6 +78,7 @@ export default function App() {
   const [data, setData] = useState<StudentData>(INITIAL_DATA);
   const [isManagingSubjects, setIsManagingSubjects] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [isPreviewBW, setIsPreviewBW] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
 
   const schoolName = data.medium === 'English' 
@@ -143,7 +144,7 @@ export default function App() {
     window.print();
   };
 
-  const generatePDF = async () => {
+  const generatePDF = async (mode: 'color' | 'bw' = 'color') => {
     if (!reportRef.current) return;
     
     const canvas = await html2canvas(reportRef.current, {
@@ -152,7 +153,20 @@ export default function App() {
       logging: false,
       backgroundColor: '#ffffff',
       windowWidth: 794,
-      windowHeight: 1123
+      windowHeight: 1123,
+      onclone: (clonedDoc) => {
+        const clonedReport = clonedDoc.querySelector('[data-report-content]');
+        if (clonedReport && mode === 'bw') {
+          clonedReport.classList.add('grayscale-report');
+          // Force display of BW elements
+          clonedReport.querySelectorAll('.report-bw-only').forEach(el => {
+            (el as HTMLElement).style.display = 'block';
+          });
+          clonedReport.querySelectorAll('.report-color-only').forEach(el => {
+            (el as HTMLElement).style.display = 'none';
+          });
+        }
+      }
     });
     
     const imgData = canvas.toDataURL('image/jpeg', 0.95);
@@ -163,7 +177,7 @@ export default function App() {
     });
     
     pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
-    pdf.save(`Result_${data.name || 'Student'}.pdf`);
+    pdf.save(`Result_${data.name || 'Student'}_${mode}.pdf`);
   };
 
   return (
@@ -181,32 +195,42 @@ export default function App() {
               <p className="text-[#65676B] text-[10px] sm:text-xs font-medium">Indrayani Educational Institutions</p>
             </div>
           </div>
-          <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2">
-            <button 
-              onClick={() => setIsPreviewOpen(true)}
-              className="px-3 sm:px-4 py-2 text-[10px] sm:text-xs font-bold text-[#1877F2] bg-[#E7F3FF] hover:bg-[#DBE7F2] rounded-lg transition-colors flex items-center justify-center gap-2"
-            >
-              <Eye className="w-4 h-4" /> <span className="hidden xs:inline">Preview</span>
-            </button>
-            <button 
-              onClick={() => setIsManagingSubjects(!isManagingSubjects)}
-              className="px-3 sm:px-4 py-2 text-[10px] sm:text-xs font-bold text-[#4B4F56] bg-[#E4E6EB] hover:bg-[#D8DADF] rounded-lg transition-colors flex items-center justify-center gap-2"
-            >
-              <Settings className="w-4 h-4" /> <span className="hidden xs:inline">{isManagingSubjects ? 'Close' : 'Manage'}</span>
-            </button>
-            <button 
-              onClick={() => setData(INITIAL_DATA)}
-              className="px-3 sm:px-4 py-2 text-[10px] sm:text-xs font-bold text-[#FA3E3E] bg-[#FEEBEB] hover:bg-[#FCD9D9] rounded-lg transition-colors flex items-center justify-center gap-2"
-            >
-              <Trash2 className="w-4 h-4" /> <span className="hidden xs:inline">Reset</span>
-            </button>
-            <button 
-              onClick={generatePDF}
-              className="px-3 sm:px-5 py-2 text-[10px] sm:text-xs font-bold text-white bg-[#1877F2] hover:bg-[#166FE5] rounded-lg shadow-sm transition-all active:scale-95 flex items-center justify-center gap-2"
-            >
-              <Download className="w-4 h-4" /> <span className="hidden xs:inline">PDF</span>
-            </button>
-          </div>
+            <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2">
+              <button 
+                onClick={() => { setIsPreviewBW(false); setIsPreviewOpen(true); }}
+                className="px-3 sm:px-4 py-2 text-[10px] sm:text-xs font-bold text-[#1877F2] bg-[#E7F3FF] hover:bg-[#DBE7F2] rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                <Eye className="w-4 h-4" /> <span className="hidden xs:inline">Preview</span>
+              </button>
+              <button 
+                onClick={() => setIsManagingSubjects(!isManagingSubjects)}
+                className="px-3 sm:px-4 py-2 text-[10px] sm:text-xs font-bold text-[#4B4F56] bg-[#E4E6EB] hover:bg-[#D8DADF] rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                <Settings className="w-4 h-4" /> <span className="hidden xs:inline">{isManagingSubjects ? 'Close' : 'Manage'}</span>
+              </button>
+              <button 
+                onClick={() => setData(INITIAL_DATA)}
+                className="px-3 sm:px-4 py-2 text-[10px] sm:text-xs font-bold text-[#FA3E3E] bg-[#FEEBEB] hover:bg-[#FCD9D9] rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                <Trash2 className="w-4 h-4" /> <span className="hidden xs:inline">Reset</span>
+              </button>
+              <div className="flex gap-1">
+                <button 
+                  onClick={() => generatePDF('color')}
+                  className="px-2 sm:px-3 py-2 text-[10px] sm:text-xs font-bold text-white bg-[#1877F2] hover:bg-[#166FE5] rounded-lg shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1"
+                  title="Download Color PDF"
+                >
+                  <Download className="w-3.5 h-3.5" /> <span className="hidden xs:inline">Color</span>
+                </button>
+                <button 
+                  onClick={() => generatePDF('bw')}
+                  className="px-2 sm:px-3 py-2 text-[10px] sm:text-xs font-bold text-white bg-[#4B4F56] hover:bg-[#333] rounded-lg shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1"
+                  title="Download B/W PDF"
+                >
+                  <Download className="w-3.5 h-3.5" /> <span className="hidden xs:inline">B/W</span>
+                </button>
+              </div>
+            </div>
         </header>
 
         {isManagingSubjects && (
@@ -441,7 +465,7 @@ export default function App() {
         {/* Hidden Report Template for PDF Generation */}
         <div className="fixed -left-[9999px] top-0">
           <div ref={reportRef}>
-            <ReportContent data={data} schoolName={schoolName} />
+            <ReportContent data={data} schoolName={schoolName} isBW={false} />
           </div>
         </div>
 
@@ -459,19 +483,33 @@ export default function App() {
                     <p className="text-[10px] text-[#65676B] font-medium uppercase tracking-wider">A4 Standard Layout</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
+                  <button 
+                    onClick={() => setIsPreviewBW(!isPreviewBW)}
+                    className={`p-2 sm:px-4 sm:py-2 text-xs font-bold rounded-lg flex items-center gap-2 transition-colors ${isPreviewBW ? 'bg-[#151619] text-white' : 'bg-[#E4E6EB] text-[#4B4F56]'}`}
+                  >
+                    {isPreviewBW ? 'Show Color' : 'Show B/W'}
+                  </button>
                   <button 
                     onClick={handlePrint}
                     className="p-2 sm:px-4 sm:py-2 text-xs font-bold text-[#4B4F56] bg-[#E4E6EB] hover:bg-[#D8DADF] rounded-lg flex items-center gap-2 transition-colors"
                   >
                     <Printer className="w-4 h-4" /> <span className="hidden sm:inline">Print</span>
                   </button>
-                  <button 
-                    onClick={generatePDF}
-                    className="p-2 sm:px-4 sm:py-2 text-xs font-bold text-white bg-[#1877F2] hover:bg-[#166FE5] rounded-lg flex items-center gap-2 shadow-sm"
-                  >
-                    <Download className="w-4 h-4" /> <span className="hidden sm:inline">Download</span>
-                  </button>
+                  <div className="flex gap-1">
+                    <button 
+                      onClick={() => generatePDF('color')}
+                      className="p-2 sm:px-4 sm:py-2 text-xs font-bold text-white bg-[#1877F2] hover:bg-[#166FE5] rounded-lg flex items-center gap-2 shadow-sm"
+                    >
+                      <Download className="w-4 h-4" /> <span className="hidden sm:inline">Color</span>
+                    </button>
+                    <button 
+                      onClick={() => generatePDF('bw')}
+                      className="p-2 sm:px-4 sm:py-2 text-xs font-bold text-white bg-[#4B4F56] hover:bg-[#333] rounded-lg flex items-center gap-2 shadow-sm"
+                    >
+                      <Download className="w-4 h-4" /> <span className="hidden sm:inline">B/W</span>
+                    </button>
+                  </div>
                   <button 
                     onClick={() => setIsPreviewOpen(false)} 
                     className="p-1.5 sm:p-2 hover:bg-[#F0F2F5] rounded-full transition-colors text-[#65676B]"
@@ -481,8 +519,8 @@ export default function App() {
                 </div>
               </div>
               <div className="flex-1 overflow-auto p-2 sm:p-4 md:p-8 bg-[#F0F2F5] flex justify-center items-start" id="report-container">
-                <div className="shadow-2xl bg-white transform scale-[0.35] xs:scale-[0.45] sm:scale-[0.65] md:scale-[0.8] lg:scale-100 origin-top transition-transform duration-300" id="report-to-print">
-                  <ReportContent data={data} schoolName={schoolName} />
+                <div className={`shadow-2xl bg-white transform scale-[0.35] xs:scale-[0.45] sm:scale-[0.65] md:scale-[0.8] lg:scale-100 origin-top transition-transform duration-300 ${isPreviewBW ? 'grayscale-report' : ''}`} id="report-to-print">
+                  <ReportContent data={data} schoolName={schoolName} isBW={isPreviewBW} />
                 </div>
               </div>
             </div>
@@ -493,130 +531,139 @@ export default function App() {
   );
 }
 
-function ReportContent({ data, schoolName }: { data: StudentData, schoolName: string }) {
+function ReportContent({ data, schoolName, isBW = false }: { data: StudentData, schoolName: string, isBW?: boolean }) {
   return (
-    <div className="w-[210mm] h-[297mm] bg-white p-[15mm] text-[#000000] font-sans relative overflow-hidden">
-      <div className="border-[1.5px] border-black p-8 h-full flex flex-col relative">
-        {/* Decorative Corner Marks (Optional for print precision) */}
-        <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-black/10 -m-1" />
-        <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-black/10 -m-1" />
-        <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-black/10 -m-1" />
-        <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-black/10 -m-1" />
+    <div className={`w-[210mm] h-[297mm] bg-white p-[10mm] text-[#000000] font-sans relative overflow-hidden ${isBW ? 'grayscale-report' : ''}`} data-report-content>
+      <div className="border-[2.5px] border-black p-6 h-full flex flex-col relative">
+        {/* Decorative Corner Marks */}
+        <div className={`absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#1877F2] -m-[2.5px] ${isBW ? 'hidden' : ''}`} />
+        <div className={`absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#1877F2] -m-[2.5px] ${isBW ? 'hidden' : ''}`} />
+        <div className={`absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#1877F2] -m-[2.5px] ${isBW ? 'hidden' : ''}`} />
+        <div className={`absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#1877F2] -m-[2.5px] ${isBW ? 'hidden' : ''}`} />
         
         {/* PDF Header */}
-        <div className="text-center space-y-1 mb-4">
-          <div className="flex justify-center mb-2">
-            <img src="https://i.ibb.co/zTgknf89/logo1jp.jpg" alt="Logo" className="h-20 w-auto" referrerPolicy="no-referrer" />
+        <div className="text-center space-y-1 mb-3">
+          <div className="flex justify-center mb-1">
+            <img src="https://i.ibb.co/zTgknf89/logo1jp.jpg" alt="Logo" className="h-16 w-auto" referrerPolicy="no-referrer" />
           </div>
-          <p className="text-[10px] font-bold uppercase tracking-widest">SHREE GANESH EDUCATION ACADEMY'S</p>
-          <h1 className="text-3xl font-serif font-black text-[#F27D26] uppercase leading-tight tracking-tight italic">{schoolName}</h1>
-          <p className="text-[9px] font-bold uppercase">SECTOR 18, KOPARKHAIRANE, NAVI MUMBAI | UDISE: 27211003415</p>
-          <div className="inline-block border border-black px-8 py-1 mt-2">
-            <p className="text-sm font-black uppercase">ANNUAL PROGRESS CARD 2024-25</p>
+          <p className={`text-[15px] font-black uppercase tracking-[0.25em] ${isBW ? 'text-black' : 'text-[#4B4F56]'}`}>SHREE GANESH EDUCATION ACADEMY'S</p>
+          
+          <div className="py-1 flex justify-center px-4">
+            <h1 className={`text-[38px] font-serif font-black uppercase leading-[1.1] tracking-tight italic text-center max-w-full break-words ${isBW ? 'text-black' : 'text-[#F27D26]'}`}>
+              {schoolName}
+            </h1>
+          </div>
+          
+          <p className={`text-[14px] font-bold uppercase tracking-wide ${isBW ? 'text-black' : 'text-[#65676B]'}`}>SECTOR 18, KOPARKHAIRANE, NAVI MUMBAI | UDISE: 27211003415</p>
+          
+          <div className="w-full h-[2px] bg-black my-3" />
+          
+          <div className={`inline-block border-[1.5px] border-black px-12 py-2 mt-1 ${isBW ? 'bg-white' : 'bg-[#F0F2F5]'}`}>
+            <p className={`text-lg font-black uppercase tracking-[0.1em] ${isBW ? 'text-black' : 'text-[#1877F2]'}`}>ANNUAL PROGRESS CARD 2024-25</p>
           </div>
         </div>
 
         {/* PDF Student Info */}
-        <div className="grid grid-cols-2 gap-x-8 gap-y-2 text-[11px] border border-black p-3 mb-4">
+        <div className={`grid grid-cols-2 gap-x-10 gap-y-3 text-[13px] border-[1.5px] border-black p-4 mb-4 ${isBW ? 'bg-white' : 'bg-[#F7F8FA]'}`}>
           <div className="flex items-baseline gap-2">
-            <span className="font-bold uppercase whitespace-nowrap">STUDENT NAME:</span>
-            <span className="border-b border-dotted border-black flex-1 font-bold uppercase">{data.name}</span>
+            <span className={`font-black uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1877F2]'}`}>STUDENT NAME:</span>
+            <span className="border-b border-dotted border-black flex-1 font-bold uppercase truncate">{data.name}</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-bold uppercase whitespace-nowrap">ROLL NO:</span>
+            <span className={`font-black uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1877F2]'}`}>ROLL NO:</span>
             <span className="border-b border-dotted border-black flex-1 font-bold uppercase">{data.rollNo}</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-bold uppercase whitespace-nowrap">STANDARD:</span>
+            <span className={`font-black uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1877F2]'}`}>STANDARD:</span>
             <span className="border-b border-dotted border-black flex-1 font-bold uppercase">{data.std} - {data.division}</span>
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="font-bold uppercase whitespace-nowrap">D.O.B:</span>
+            <span className={`font-black uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1877F2]'}`}>D.O.B:</span>
             <span className="border-b border-dotted border-black flex-1 font-bold uppercase">{data.dob}</span>
           </div>
         </div>
 
         {/* PDF Grades Table */}
-        <table className="w-full border-collapse border border-black mb-4">
+        <table className="w-full border-collapse border-[1.5px] border-black mb-4">
           <thead>
-            <tr className="bg-[#151619] text-white text-[10px] font-bold uppercase">
-              <th className="border border-black p-2 w-12">SR.</th>
-              <th className="border border-black p-2 text-left">SUBJECTS</th>
-              <th className="border border-black p-2 w-48">FIRST SEMESTER</th>
-              <th className="border border-black p-2 w-48">SECOND SEMESTER</th>
+            <tr className={`text-white text-[12px] font-black uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#1877F2]'}`}>
+              <th className="border-[1.5px] border-black p-2 w-12">SR.</th>
+              <th className="border-[1.5px] border-black p-2 text-left">SUBJECTS</th>
+              <th className="border-[1.5px] border-black p-2 w-44">FIRST SEMESTER</th>
+              <th className="border-[1.5px] border-black p-2 w-44">SECOND SEMESTER</th>
             </tr>
           </thead>
-          <tbody className="text-[11px] font-bold">
+          <tbody className="text-[13px] font-bold">
             {data.subjects.map((s, index) => (
-              <tr key={s.id}>
-                <td className="border border-black p-3 text-center">{index + 1}</td>
-                <td className="border border-black p-3 pl-8">{s.name}</td>
-                <td className="border border-black p-3 text-center">{s.sem1}</td>
-                <td className="border border-black p-3 text-center">{s.sem2}</td>
+              <tr key={s.id} className={index % 2 === 0 ? 'bg-white' : (isBW ? 'bg-[#F0F2F5]' : 'bg-[#F0F2F5]/30')}>
+                <td className="border-[1.5px] border-black p-2 text-center">{index + 1}</td>
+                <td className="border-[1.5px] border-black p-2 pl-6">{s.name}</td>
+                <td className="border-[1.5px] border-black p-2 text-center">{s.sem1}</td>
+                <td className="border-[1.5px] border-black p-2 text-center">{s.sem2}</td>
               </tr>
             ))}
-            <tr className="bg-[#F0F2F5]">
-              <td colSpan={2} className="border border-black p-3 text-center uppercase tracking-widest">OVERALL PERCENTAGE (%)</td>
-              <td colSpan={2} className="border border-black p-3 text-center text-lg font-black">{data.overallPercentage} %</td>
+            <tr className={isBW ? 'bg-[#F0F2F5]' : 'bg-[#E7F3FF]'}>
+              <td colSpan={2} className={`border-[1.5px] border-black p-2.5 text-center uppercase tracking-widest font-black ${isBW ? 'text-black' : 'text-[#1877F2]'}`}>OVERALL PERCENTAGE (%)</td>
+              <td colSpan={2} className={`border-[1.5px] border-black p-2.5 text-center text-xl font-black ${isBW ? 'text-black' : 'text-[#F27D26]'}`}>{data.overallPercentage} %</td>
             </tr>
           </tbody>
         </table>
 
         {/* PDF Evaluation Criteria */}
-        <table className="w-full border-collapse border border-black mb-4">
+        <table className="w-full border-collapse border-[1.5px] border-black mb-4">
           <thead>
-            <tr className="bg-[#151619] text-white text-[10px] font-bold uppercase">
-              <th className="border border-black p-2 text-left">EVALUATION CRITERIA</th>
-              <th className="border border-black p-2 w-48">FIRST SEMESTER</th>
-              <th className="border border-black p-2 w-48">SECOND SEMESTER</th>
+            <tr className={`text-white text-[12px] font-black uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#42B72A]'}`}>
+              <th className="border-[1.5px] border-black p-2 text-left">EVALUATION CRITERIA</th>
+              <th className="border-[1.5px] border-black p-2 w-44">FIRST SEMESTER</th>
+              <th className="border-[1.5px] border-black p-2 w-44">SECOND SEMESTER</th>
             </tr>
           </thead>
-          <tbody className="text-[10px] font-bold italic">
+          <tbody className="text-[12px] font-bold italic">
             <tr>
-              <td className="border border-black p-3 uppercase">SPECIAL IMPROVEMENTS</td>
-              <td className="border border-black p-3">{data.remarks.sem1.specialImprovements}</td>
-              <td className="border border-black p-3">{data.remarks.sem2.specialImprovements}</td>
+              <td className="border-[1.5px] border-black p-2.5 uppercase bg-[#F7F8FA]/50 font-black">SPECIAL IMPROVEMENTS</td>
+              <td className="border-[1.5px] border-black p-2.5">{data.remarks.sem1.specialImprovements}</td>
+              <td className="border-[1.5px] border-black p-2.5">{data.remarks.sem2.specialImprovements}</td>
             </tr>
             <tr>
-              <td className="border border-black p-3 uppercase">HOBBIES & INTERESTS</td>
-              <td className="border border-black p-3">{data.remarks.sem1.hobbies}</td>
-              <td className="border border-black p-3">{data.remarks.sem2.hobbies}</td>
+              <td className="border-[1.5px] border-black p-2.5 uppercase bg-[#F7F8FA]/50 font-black">HOBBIES & INTERESTS</td>
+              <td className="border-[1.5px] border-black p-2.5">{data.remarks.sem1.hobbies}</td>
+              <td className="border-[1.5px] border-black p-2.5">{data.remarks.sem2.hobbies}</td>
             </tr>
             <tr>
-              <td className="border border-black p-3 uppercase">NECESSARY IMPROVEMENTS</td>
-              <td className="border border-black p-3">{data.remarks.sem1.necessaryImprovement}</td>
-              <td className="border border-black p-3">{data.remarks.sem2.necessaryImprovement}</td>
+              <td className="border-[1.5px] border-black p-2.5 uppercase bg-[#F7F8FA]/50 font-black">NECESSARY IMPROVEMENTS</td>
+              <td className="border-[1.5px] border-black p-2.5">{data.remarks.sem1.necessaryImprovement}</td>
+              <td className="border-[1.5px] border-black p-2.5">{data.remarks.sem2.necessaryImprovement}</td>
             </tr>
           </tbody>
         </table>
 
         {/* PDF Grade Scale */}
-        <div className="grid grid-cols-8 border border-black text-[8px] font-bold text-center mb-6">
-          <div className="border-r border-black p-1">91%+(A1)</div>
-          <div className="border-r border-black p-1">81-90%(A2)</div>
-          <div className="border-r border-black p-1">71-80%(B1)</div>
-          <div className="border-r border-black p-1">61-70%(B2)</div>
-          <div className="border-r border-black p-1">51-60%(C1)</div>
-          <div className="border-r border-black p-1">41-50%(C2)</div>
-          <div className="border-r border-black p-1">33-40%(D)</div>
-          <div className="p-1">&lt;33%(E)</div>
+        <div className={`grid grid-cols-8 border-[1.5px] border-black text-[9px] font-black text-center mb-4 ${isBW ? 'bg-white' : 'bg-[#F7F8FA]'}`}>
+          <div className="border-r border-black p-1.5">91%+(A1)</div>
+          <div className="border-r border-black p-1.5">81-90%(A2)</div>
+          <div className="border-r border-black p-1.5">71-80%(B1)</div>
+          <div className="border-r border-black p-1.5">61-70%(B2)</div>
+          <div className="border-r border-black p-1.5">51-60%(C1)</div>
+          <div className="border-r border-black p-1.5">41-50%(C2)</div>
+          <div className="border-r border-black p-1.5">33-40%(D)</div>
+          <div className="p-1.5">&lt;33%(E)</div>
         </div>
 
         {/* PDF Result Section */}
-        <div className="border border-black p-4 text-center space-y-1 mb-8">
-          <p className="text-sm font-black uppercase">
-            RESULT: <span className="text-[#FA3E3E]">{data.result}</span> | PROMOTED TO: <span className="text-[#F27D26]">{data.promotedTo}</span>
+        <div className={`border-[1.5px] border-black p-4 text-center space-y-1 mb-6 ${isBW ? 'bg-white' : 'bg-[#F0F2F5]'}`}>
+          <p className="text-base font-black uppercase">
+            RESULT: <span className={isBW ? 'text-black' : 'text-[#FA3E3E]'}>{data.result}</span> | PROMOTED TO: <span className={isBW ? 'text-black' : 'text-[#F27D26]'}>{data.promotedTo}</span>
           </p>
-          <p className="text-[10px] font-bold uppercase tracking-widest">SCHOOL REOPENS: {data.schoolReopens}</p>
+          <p className="text-[11px] font-black uppercase tracking-[0.2em]">SCHOOL REOPENS: {data.schoolReopens}</p>
         </div>
 
         {/* PDF Signatures */}
-        <div className="mt-auto grid grid-cols-2 gap-20 px-10">
-          <div className="border-t border-black pt-2 text-center">
-            <p className="text-[10px] font-bold uppercase tracking-widest">CLASS TEACHER'S SIGN</p>
+        <div className="mt-auto grid grid-cols-2 gap-24 px-12 pb-2">
+          <div className="border-t-[1.5px] border-black pt-2 text-center">
+            <p className="text-[11px] font-black uppercase tracking-widest">CLASS TEACHER'S SIGN</p>
           </div>
-          <div className="border-t border-black pt-2 text-center">
-            <p className="text-[10px] font-bold uppercase tracking-widest">PRINCIPAL'S SIGN</p>
+          <div className="border-t-[1.5px] border-black pt-2 text-center">
+            <p className="text-[11px] font-black uppercase tracking-widest">PRINCIPAL'S SIGN</p>
           </div>
         </div>
       </div>
