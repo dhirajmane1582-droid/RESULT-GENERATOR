@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Save, Download, GraduationCap, User, BookOpen, MessageSquare, Trash2, Plus, Settings, Calendar, Eye, X, Printer } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
@@ -82,6 +82,13 @@ export default function App() {
   const reportRef = useRef<HTMLDivElement>(null);
 
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const schoolName = data.medium === 'English' 
     ? 'INDRAYANI ENGLISH MEDIUM SCHOOL' 
@@ -192,70 +199,73 @@ export default function App() {
       <div className="max-w-6xl mx-auto space-y-6">
         
         {/* Header Section */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-xl shadow-sm border border-[#DADDE1]">
-          <div className="flex items-center gap-4">
-            <div className="bg-[#1877F2] p-2.5 rounded-lg">
-              <GraduationCap className="w-7 h-7 text-white" />
+        <header className="sticky top-0 z-30 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/80 backdrop-blur-md p-4 sm:p-5 rounded-xl shadow-sm border border-[#DADDE1]">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="bg-[#1877F2] p-2 sm:p-2.5 rounded-lg shrink-0">
+              <GraduationCap className="w-6 h-6 sm:w-7 h-7 text-white" />
             </div>
             <div>
-              <h1 className="text-lg sm:text-xl font-bold text-[#1C1E21]">Annual Result Generator</h1>
-              <p className="text-[#65676B] text-[10px] sm:text-xs font-medium">Indrayani Educational Institutions</p>
+              <h1 className="text-base sm:text-xl font-bold text-[#1C1E21] leading-tight">Result Generator</h1>
+              <p className="text-[#65676B] text-[9px] sm:text-xs font-medium uppercase tracking-wider">Indrayani Institutions</p>
             </div>
           </div>
-            <div className="grid grid-cols-2 sm:flex sm:flex-row gap-2">
+          <div className="flex items-center justify-between sm:justify-end gap-2">
+            <div className="flex gap-1.5">
               <button 
                 onClick={() => { setIsPreviewBW(false); setIsPreviewOpen(true); }}
-                className="px-3 sm:px-4 py-2 text-[10px] sm:text-xs font-bold text-[#1877F2] bg-[#E7F3FF] hover:bg-[#DBE7F2] rounded-lg transition-colors flex items-center justify-center gap-2"
+                className="px-3 py-2 text-[10px] sm:text-xs font-bold text-[#1877F2] bg-[#E7F3FF] hover:bg-[#DBE7F2] rounded-lg transition-colors flex items-center gap-1.5"
               >
-                <Eye className="w-4 h-4" /> <span className="hidden xs:inline">Preview</span>
+                <Eye className="w-3.5 h-3.5" /> <span>Preview</span>
               </button>
               <button 
                 onClick={() => setIsManagingSubjects(!isManagingSubjects)}
-                className="px-3 sm:px-4 py-2 text-[10px] sm:text-xs font-bold text-[#4B4F56] bg-[#E4E6EB] hover:bg-[#D8DADF] rounded-lg transition-colors flex items-center justify-center gap-2"
+                className={`px-3 py-2 text-[10px] sm:text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 ${isManagingSubjects ? 'bg-[#1877F2] text-white' : 'bg-[#E4E6EB] text-[#4B4F56]'}`}
               >
-                <Settings className="w-4 h-4" /> <span className="hidden xs:inline">{isManagingSubjects ? 'Close' : 'Manage'}</span>
+                <Settings className="w-3.5 h-3.5" /> <span>{isManagingSubjects ? 'Done' : 'Setup'}</span>
+              </button>
+            </div>
+            <div className="h-8 w-[1px] bg-[#DADDE1] mx-1 hidden sm:block" />
+            <div className="flex gap-1">
+              <button 
+                onClick={() => generatePDF('color')}
+                disabled={!!isGenerating}
+                className={`px-2.5 py-2 text-[10px] sm:text-xs font-bold text-white bg-[#1877F2] hover:bg-[#166FE5] rounded-lg shadow-sm transition-all active:scale-95 flex items-center gap-1.5 ${isGenerating === 'color' ? 'opacity-70 cursor-wait' : ''}`}
+              >
+                {isGenerating === 'color' ? (
+                  <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <Download className="w-3.5 h-3.5" />
+                )}
+                <span className="hidden xs:inline">Color</span>
               </button>
               <button 
-                onClick={() => setData(INITIAL_DATA)}
-                className="px-3 sm:px-4 py-2 text-[10px] sm:text-xs font-bold text-[#FA3E3E] bg-[#FEEBEB] hover:bg-[#FCD9D9] rounded-lg transition-colors flex items-center justify-center gap-2"
+                onClick={() => generatePDF('bw')}
+                disabled={!!isGenerating}
+                className={`px-2.5 py-2 text-[10px] sm:text-xs font-bold text-white bg-[#4B4F56] hover:bg-[#333] rounded-lg shadow-sm transition-all active:scale-95 flex items-center gap-1.5 ${isGenerating === 'bw' ? 'opacity-70 cursor-wait' : ''}`}
               >
-                <Trash2 className="w-4 h-4" /> <span className="hidden xs:inline">Reset</span>
+                {isGenerating === 'bw' ? (
+                  <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <Download className="w-3.5 h-3.5" />
+                )}
+                <span className="hidden xs:inline">B/W</span>
               </button>
-              <div className="flex gap-1">
-                <button 
-                  onClick={() => generatePDF('color')}
-                  disabled={!!isGenerating}
-                  className={`px-2 sm:px-3 py-2 text-[10px] sm:text-xs font-bold text-white bg-[#1877F2] hover:bg-[#166FE5] rounded-lg shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1 ${isGenerating === 'color' ? 'opacity-70 cursor-wait' : ''}`}
-                  title="Download Color PDF"
-                >
-                  {isGenerating === 'color' ? (
-                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <Download className="w-3.5 h-3.5" />
-                  )}
-                  <span className="hidden xs:inline">{isGenerating === 'color' ? '...' : 'Color'}</span>
-                </button>
-                <button 
-                  onClick={() => generatePDF('bw')}
-                  disabled={!!isGenerating}
-                  className={`px-2 sm:px-3 py-2 text-[10px] sm:text-xs font-bold text-white bg-[#4B4F56] hover:bg-[#333] rounded-lg shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1 ${isGenerating === 'bw' ? 'opacity-70 cursor-wait' : ''}`}
-                  title="Download B/W PDF"
-                >
-                  {isGenerating === 'bw' ? (
-                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  ) : (
-                    <Download className="w-3.5 h-3.5" />
-                  )}
-                  <span className="hidden xs:inline">{isGenerating === 'bw' ? '...' : 'B/W'}</span>
-                </button>
-              </div>
             </div>
+          </div>
         </header>
 
         {isManagingSubjects && (
           <section className="bg-white p-6 rounded-xl shadow-sm border border-[#DADDE1] space-y-4 animate-in fade-in slide-in-from-top-2">
             <div className="flex items-center justify-between border-b pb-3">
-              <h2 className="text-sm font-bold text-[#1C1E21] uppercase tracking-wider">Subject Manager</h2>
+              <div className="flex items-center gap-3">
+                <h2 className="text-sm font-bold text-[#1C1E21] uppercase tracking-wider">Subject Manager</h2>
+                <button 
+                  onClick={() => setData(INITIAL_DATA)}
+                  className="px-2 py-1 text-[10px] font-bold text-[#FA3E3E] bg-[#FEEBEB] hover:bg-[#FCD9D9] rounded-md transition-colors flex items-center gap-1"
+                >
+                  <Trash2 className="w-3 h-3" /> Reset All
+                </button>
+              </div>
               <button 
                 onClick={addSubject}
                 className="px-3 py-1.5 text-xs font-bold text-white bg-[#42B72A] hover:bg-[#36A420] rounded-lg flex items-center gap-2"
@@ -547,9 +557,16 @@ export default function App() {
                   </button>
                 </div>
               </div>
-              <div className="flex-1 overflow-auto p-2 sm:p-4 md:p-8 bg-[#F0F2F5] flex justify-center items-start" id="report-container">
-                <div className={`shadow-2xl bg-white transform scale-[0.35] xs:scale-[0.45] sm:scale-[0.65] md:scale-[0.8] lg:scale-100 origin-top transition-transform duration-300 ${isPreviewBW ? 'grayscale-report' : ''}`} id="report-to-print">
-                  <ReportContent data={data} schoolName={schoolName} udise={udise} isBW={isPreviewBW} />
+              <div className="flex-1 overflow-auto p-4 sm:p-8 bg-[#8E9299]/20 flex justify-center items-start overflow-x-hidden">
+                <div className="relative py-8">
+                  <div className={`shadow-2xl bg-white transform origin-top transition-transform duration-300 ${isPreviewBW ? 'grayscale-report' : ''}`} 
+                       style={{ 
+                         transform: `scale(${windowWidth < 480 ? 0.35 : windowWidth < 640 ? 0.45 : windowWidth < 768 ? 0.6 : windowWidth < 1024 ? 0.8 : 1})`,
+                         width: '210mm',
+                         height: '297mm'
+                       }}>
+                    <ReportContent data={data} schoolName={schoolName} udise={udise} isBW={isPreviewBW} />
+                  </div>
                 </div>
               </div>
             </div>
@@ -577,8 +594,8 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
           </div>
           <p className={`text-[14px] font-black uppercase tracking-[0.3em] ${isBW ? 'text-black' : 'text-[#4B4F56]'}`}>SHREE GANESH EDUCATION ACADEMY'S</p>
           
-          <div className="py-2 flex justify-center overflow-hidden">
-            <h1 className={`text-[36px] font-serif font-black uppercase leading-none tracking-tight italic whitespace-nowrap ${isBW ? 'text-black' : 'text-[#F27D26]'}`}>
+          <div className="py-2 flex justify-center">
+            <h1 className={`text-[32px] font-serif font-black uppercase leading-tight tracking-tight text-center px-4 ${isBW ? 'text-black' : 'text-[#F27D26]'}`}>
               {schoolName}
             </h1>
           </div>
