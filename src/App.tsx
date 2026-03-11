@@ -81,9 +81,15 @@ export default function App() {
   const [isPreviewBW, setIsPreviewBW] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
 
+  const [isGenerating, setIsGenerating] = useState<string | null>(null);
+
   const schoolName = data.medium === 'English' 
     ? 'INDRAYANI ENGLISH MEDIUM SCHOOL' 
     : 'INDRAYANI INTERNATIONAL SCHOOL';
+
+  const udise = data.medium === 'English'
+    ? '27211003415/27211003417'
+    : '27211003501/27211003519';
 
   const handleStandardChange = (std: string) => {
     const subjectNames = SUBJECT_MAPPING[std] || SUBJECT_MAPPING['1st'];
@@ -145,39 +151,40 @@ export default function App() {
   };
 
   const generatePDF = async (mode: 'color' | 'bw' = 'color') => {
-    if (!reportRef.current) return;
+    if (!reportRef.current || isGenerating) return;
     
-    const canvas = await html2canvas(reportRef.current, {
-      scale: 3,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff',
-      windowWidth: 794,
-      windowHeight: 1123,
-      onclone: (clonedDoc) => {
-        const clonedReport = clonedDoc.querySelector('[data-report-content]');
-        if (clonedReport && mode === 'bw') {
-          clonedReport.classList.add('grayscale-report');
-          // Force display of BW elements
-          clonedReport.querySelectorAll('.report-bw-only').forEach(el => {
-            (el as HTMLElement).style.display = 'block';
-          });
-          clonedReport.querySelectorAll('.report-color-only').forEach(el => {
-            (el as HTMLElement).style.display = 'none';
-          });
+    setIsGenerating(mode);
+    try {
+      const canvas = await html2canvas(reportRef.current, {
+        scale: 2, // Reduced scale slightly for better performance
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        windowWidth: 794,
+        windowHeight: 1123,
+        onclone: (clonedDoc) => {
+          const clonedReport = clonedDoc.querySelector('[data-report-content]');
+          if (clonedReport && mode === 'bw') {
+            clonedReport.classList.add('grayscale-report');
+          }
         }
-      }
-    });
-    
-    const imgData = canvas.toDataURL('image/jpeg', 0.95);
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-    
-    pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
-    pdf.save(`Result_${data.name || 'Student'}_${mode}.pdf`);
+      });
+      
+      const imgData = canvas.toDataURL('image/jpeg', 0.9);
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+      pdf.save(`Result_${data.name || 'Student'}_${mode}.pdf`);
+    } catch (error) {
+      console.error('PDF generation failed:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsGenerating(null);
+    }
   };
 
   return (
@@ -217,17 +224,29 @@ export default function App() {
               <div className="flex gap-1">
                 <button 
                   onClick={() => generatePDF('color')}
-                  className="px-2 sm:px-3 py-2 text-[10px] sm:text-xs font-bold text-white bg-[#1877F2] hover:bg-[#166FE5] rounded-lg shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1"
+                  disabled={!!isGenerating}
+                  className={`px-2 sm:px-3 py-2 text-[10px] sm:text-xs font-bold text-white bg-[#1877F2] hover:bg-[#166FE5] rounded-lg shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1 ${isGenerating === 'color' ? 'opacity-70 cursor-wait' : ''}`}
                   title="Download Color PDF"
                 >
-                  <Download className="w-3.5 h-3.5" /> <span className="hidden xs:inline">Color</span>
+                  {isGenerating === 'color' ? (
+                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <Download className="w-3.5 h-3.5" />
+                  )}
+                  <span className="hidden xs:inline">{isGenerating === 'color' ? '...' : 'Color'}</span>
                 </button>
                 <button 
                   onClick={() => generatePDF('bw')}
-                  className="px-2 sm:px-3 py-2 text-[10px] sm:text-xs font-bold text-white bg-[#4B4F56] hover:bg-[#333] rounded-lg shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1"
+                  disabled={!!isGenerating}
+                  className={`px-2 sm:px-3 py-2 text-[10px] sm:text-xs font-bold text-white bg-[#4B4F56] hover:bg-[#333] rounded-lg shadow-sm transition-all active:scale-95 flex items-center justify-center gap-1 ${isGenerating === 'bw' ? 'opacity-70 cursor-wait' : ''}`}
                   title="Download B/W PDF"
                 >
-                  <Download className="w-3.5 h-3.5" /> <span className="hidden xs:inline">B/W</span>
+                  {isGenerating === 'bw' ? (
+                    <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <Download className="w-3.5 h-3.5" />
+                  )}
+                  <span className="hidden xs:inline">{isGenerating === 'bw' ? '...' : 'B/W'}</span>
                 </button>
               </div>
             </div>
@@ -454,10 +473,16 @@ export default function App() {
             </section>
 
             <button 
-              onClick={generatePDF}
-              className="w-full py-3.5 bg-[#1877F2] text-white rounded-xl font-bold shadow-md hover:bg-[#166FE5] transition-all active:scale-[0.98] flex items-center justify-center gap-2 uppercase tracking-widest text-xs"
+              onClick={() => generatePDF('color')}
+              disabled={!!isGenerating}
+              className={`w-full py-3.5 bg-[#1877F2] text-white rounded-xl font-bold shadow-md hover:bg-[#166FE5] transition-all active:scale-[0.98] flex items-center justify-center gap-2 uppercase tracking-widest text-xs ${isGenerating ? 'opacity-70 cursor-wait' : ''}`}
             >
-              <Save className="w-5 h-5" /> Save & Generate PDF
+              {isGenerating ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <Save className="w-5 h-5" />
+              )}
+              {isGenerating ? 'Generating...' : 'Save & Generate PDF'}
             </button>
           </div>
         </div>
@@ -465,7 +490,7 @@ export default function App() {
         {/* Hidden Report Template for PDF Generation */}
         <div className="fixed -left-[9999px] top-0">
           <div ref={reportRef}>
-            <ReportContent data={data} schoolName={schoolName} isBW={false} />
+            <ReportContent data={data} schoolName={schoolName} udise={udise} isBW={false} />
           </div>
         </div>
 
@@ -499,15 +524,19 @@ export default function App() {
                   <div className="flex gap-1">
                     <button 
                       onClick={() => generatePDF('color')}
-                      className="p-2 sm:px-4 sm:py-2 text-xs font-bold text-white bg-[#1877F2] hover:bg-[#166FE5] rounded-lg flex items-center gap-2 shadow-sm"
+                      disabled={!!isGenerating}
+                      className="p-2 sm:px-4 sm:py-2 text-xs font-bold text-white bg-[#1877F2] hover:bg-[#166FE5] rounded-lg flex items-center gap-2 shadow-sm disabled:opacity-50"
                     >
-                      <Download className="w-4 h-4" /> <span className="hidden sm:inline">Color</span>
+                      {isGenerating === 'color' ? <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Download className="w-4 h-4" />}
+                      <span className="hidden sm:inline">Color</span>
                     </button>
                     <button 
                       onClick={() => generatePDF('bw')}
-                      className="p-2 sm:px-4 sm:py-2 text-xs font-bold text-white bg-[#4B4F56] hover:bg-[#333] rounded-lg flex items-center gap-2 shadow-sm"
+                      disabled={!!isGenerating}
+                      className="p-2 sm:px-4 sm:py-2 text-xs font-bold text-white bg-[#4B4F56] hover:bg-[#333] rounded-lg flex items-center gap-2 shadow-sm disabled:opacity-50"
                     >
-                      <Download className="w-4 h-4" /> <span className="hidden sm:inline">B/W</span>
+                      {isGenerating === 'bw' ? <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Download className="w-4 h-4" />}
+                      <span className="hidden sm:inline">B/W</span>
                     </button>
                   </div>
                   <button 
@@ -520,7 +549,7 @@ export default function App() {
               </div>
               <div className="flex-1 overflow-auto p-2 sm:p-4 md:p-8 bg-[#F0F2F5] flex justify-center items-start" id="report-container">
                 <div className={`shadow-2xl bg-white transform scale-[0.35] xs:scale-[0.45] sm:scale-[0.65] md:scale-[0.8] lg:scale-100 origin-top transition-transform duration-300 ${isPreviewBW ? 'grayscale-report' : ''}`} id="report-to-print">
-                  <ReportContent data={data} schoolName={schoolName} isBW={isPreviewBW} />
+                  <ReportContent data={data} schoolName={schoolName} udise={udise} isBW={isPreviewBW} />
                 </div>
               </div>
             </div>
@@ -531,7 +560,7 @@ export default function App() {
   );
 }
 
-function ReportContent({ data, schoolName, isBW = false }: { data: StudentData, schoolName: string, isBW?: boolean }) {
+function ReportContent({ data, schoolName, udise, isBW = false }: { data: StudentData, schoolName: string, udise: string, isBW?: boolean }) {
   return (
     <div className={`w-[210mm] h-[297mm] bg-white p-[10mm] text-[#000000] font-sans relative overflow-hidden ${isBW ? 'grayscale-report' : ''}`} data-report-content>
       <div className="border-[2.5px] border-black pt-6 px-6 pb-2 h-full flex flex-col relative">
@@ -554,7 +583,7 @@ function ReportContent({ data, schoolName, isBW = false }: { data: StudentData, 
             </h1>
           </div>
           
-          <p className={`text-[12px] font-bold uppercase tracking-widest ${isBW ? 'text-black' : 'text-[#65676B]'}`}>SECTOR 18, KOPARKHAIRANE, NAVI MUMBAI | UDISE: 27211003415</p>
+          <p className={`text-[12px] font-bold uppercase tracking-widest ${isBW ? 'text-black' : 'text-[#65676B]'}`}>SECTOR 18, KOPARKHAIRANE, NAVI MUMBAI | UDISE: {udise}</p>
           
           <div className="w-full h-[2px] bg-black my-3" />
           
