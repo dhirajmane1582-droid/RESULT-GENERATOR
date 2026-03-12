@@ -497,11 +497,11 @@ export default function App() {
         </div>
 
         {/* Hidden Report Template for PDF Generation */}
-        <div className="fixed -left-[9999px] top-0">
-          <div ref={reportRef}>
+        <div className="absolute opacity-0 pointer-events-none -z-50 overflow-hidden" style={{ width: '210mm', height: '297mm', top: '-10000px' }}>
+          <div ref={reportRef} style={{ width: '210mm' }}>
             <ReportContent data={data} schoolName={schoolName} udise={udise} isBW={false} />
           </div>
-          <div ref={reportBWRef}>
+          <div ref={reportBWRef} style={{ width: '210mm' }}>
             <ReportContent data={data} schoolName={schoolName} udise={udise} isBW={true} />
           </div>
         </div>
@@ -677,7 +677,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
           <div className="w-full h-[1px] bg-black my-1" />
           
           <div className={`inline-block border-[1px] border-black px-6 py-1 mt-4 mb-1 ${isBW ? 'bg-white' : 'bg-[#E7F3FF]'}`}>
-            <p className={`text-xs font-black uppercase tracking-[0.1em] ${isBW ? 'text-black' : 'text-[#0052CC]'}`}>ANNUAL PROGRESS CARD 2025-26</p>
+            <p className={`text-[12px] font-black uppercase tracking-wider ${isBW ? 'text-black' : 'text-[#0052CC]'}`}>ANNUAL PROGRESS CARD 2025-26</p>
           </div>
         </header>
 
@@ -707,11 +707,11 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
         <section className={`shrink-0 ${s.sectionMargin}`}>
           <table className="w-full border-collapse border-[1px] border-black">
             <thead>
-              <tr className={`text-white text-[9px] font-black uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#0052CC]'}`}>
+              <tr className={`text-white text-[11px] font-black uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#0052CC]'}`}>
                 <th className={`border-[1px] border-black ${s.padding} w-8`}>SR.</th>
                 <th className={`border-[1px] border-black ${s.padding} text-left`}>SUBJECTS</th>
-                <th className={`border-[1px] border-black ${s.padding} w-44`}>FIRST SEMESTER</th>
-                <th className={`border-[1px] border-black ${s.padding} w-44`}>SECOND SEMESTER</th>
+                <th className={`border-[1px] border-black ${s.padding} w-60`}>FIRST SEMESTER</th>
+                <th className={`border-[1px] border-black ${s.padding} w-60`}>SECOND SEMESTER</th>
               </tr>
             </thead>
             <tbody className={`${s.fontSize} font-bold`}>
@@ -735,10 +735,10 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
         <section className={`shrink-0 ${s.sectionMargin}`}>
           <table className="w-full border-collapse border-[1px] border-black">
             <thead>
-              <tr className={`text-white text-[8px] font-black uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#00C853]'}`}>
+              <tr className={`text-white text-[10px] font-black uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#00C853]'}`}>
                 <th className={`border-[1px] border-black ${s.evalPadding} text-left`}>EVALUATION CRITERIA</th>
-                <th className={`border-[1px] border-black ${s.evalPadding} w-44`}>FIRST SEMESTER</th>
-                <th className={`border-[1px] border-black ${s.evalPadding} w-44`}>SECOND SEMESTER</th>
+                <th className={`border-[1px] border-black ${s.evalPadding} w-60`}>FIRST SEMESTER</th>
+                <th className={`border-[1px] border-black ${s.evalPadding} w-60`}>SECOND SEMESTER</th>
               </tr>
             </thead>
             <tbody className={`${s.evalFontSize} font-bold italic`}>
