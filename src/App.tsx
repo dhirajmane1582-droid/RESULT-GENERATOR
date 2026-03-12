@@ -676,7 +676,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
           
           <div className="w-full h-[1px] bg-black my-1" />
           
-          <div className={`inline-block border-[1px] border-black px-6 py-1 my-2 ${isBW ? 'bg-white' : 'bg-[#E7F3FF]'}`}>
+          <div className={`inline-block border-[1px] border-black px-6 py-1 mt-4 mb-1 ${isBW ? 'bg-white' : 'bg-[#E7F3FF]'}`}>
             <p className={`text-xs font-black uppercase tracking-[0.1em] ${isBW ? 'text-black' : 'text-[#0052CC]'}`}>ANNUAL PROGRESS CARD 2025-26</p>
           </div>
         </header>
