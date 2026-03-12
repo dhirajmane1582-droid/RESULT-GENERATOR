@@ -80,6 +80,7 @@ export default function App() {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isPreviewBW, setIsPreviewBW] = useState(false);
   const reportRef = useRef<HTMLDivElement>(null);
+  const reportBWRef = useRef<HTMLDivElement>(null);
 
   const [isGenerating, setIsGenerating] = useState<string | null>(null);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
@@ -158,33 +159,31 @@ export default function App() {
   };
 
   const generatePDF = async (mode: 'color' | 'bw' = 'color') => {
-    if (!reportRef.current || isGenerating) return;
+    const targetRef = mode === 'bw' ? reportBWRef : reportRef;
+    if (!targetRef.current || isGenerating) return;
     
     setIsGenerating(mode);
     try {
-      const canvas = await html2canvas(reportRef.current, {
-        scale: 2, // Reduced scale slightly for better performance
+      const canvas = await html2canvas(targetRef.current, {
+        scale: 3, // Increased scale for high quality
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
         windowWidth: 794,
-        windowHeight: 1123,
-        onclone: (clonedDoc) => {
-          const clonedReport = clonedDoc.querySelector('[data-report-content]');
-          if (clonedReport && mode === 'bw') {
-            clonedReport.classList.add('grayscale-report');
-          }
-        }
+        windowHeight: 1119, // Adjusted for 296mm
+        imageTimeout: 0,
+        removeContainer: true
       });
       
-      const imgData = canvas.toDataURL('image/jpeg', 0.9);
+      const imgData = canvas.toDataURL('image/png'); // PNG for lossless quality
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
-        format: 'a4'
+        format: 'a4',
+        compress: true
       });
       
-      pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+      pdf.addImage(imgData, 'PNG', 0, 0, 210, 296, undefined, 'FAST');
       pdf.save(`Result_${data.name || 'Student'}_${mode}.pdf`);
     } catch (error) {
       console.error('PDF generation failed:', error);
@@ -502,6 +501,9 @@ export default function App() {
           <div ref={reportRef}>
             <ReportContent data={data} schoolName={schoolName} udise={udise} isBW={false} />
           </div>
+          <div ref={reportBWRef}>
+            <ReportContent data={data} schoolName={schoolName} udise={udise} isBW={true} />
+          </div>
         </div>
 
         {/* Preview Modal */}
@@ -578,139 +580,234 @@ export default function App() {
 }
 
 function ReportContent({ data, schoolName, udise, isBW = false }: { data: StudentData, schoolName: string, udise: string, isBW?: boolean }) {
+  const subjectCount = data.subjects.length;
+  
+  // Aggressive Dynamic Scaling Logic to ensure A4 fit
+  const getScaleStyles = () => {
+    if (subjectCount <= 5) return { 
+      fontSize: 'text-[13px]', 
+      padding: 'py-5 px-4', 
+      evalPadding: 'p-4',
+      evalFontSize: 'text-[12px]',
+      sectionMargin: 'mb-0',
+      headerMargin: 'mb-0',
+      resultPadding: 'p-5',
+      sigPadding: 'pt-8',
+      remarkMaxHeight: 'max-h-[120px]'
+    };
+    if (subjectCount <= 7) return { 
+      fontSize: 'text-[12px]', 
+      padding: 'py-4 px-4', 
+      evalPadding: 'p-3.5',
+      evalFontSize: 'text-[11px]',
+      sectionMargin: 'mb-0',
+      headerMargin: 'mb-0',
+      resultPadding: 'p-4',
+      sigPadding: 'pt-7',
+      remarkMaxHeight: 'max-h-[100px]'
+    };
+    if (subjectCount <= 9) return { 
+      fontSize: 'text-[11px]', 
+      padding: 'py-3 px-3', 
+      evalPadding: 'p-3',
+      evalFontSize: 'text-[10px]',
+      sectionMargin: 'mb-0',
+      headerMargin: 'mb-0',
+      resultPadding: 'p-3.5',
+      sigPadding: 'pt-6',
+      remarkMaxHeight: 'max-h-[80px]'
+    };
+    if (subjectCount <= 11) return { 
+      fontSize: 'text-[10px]', 
+      padding: 'py-2 px-2', 
+      evalPadding: 'p-2',
+      evalFontSize: 'text-[9px]',
+      sectionMargin: 'mb-0',
+      headerMargin: 'mb-0',
+      resultPadding: 'p-3',
+      sigPadding: 'pt-5',
+      remarkMaxHeight: 'max-h-[60px]'
+    };
+    if (subjectCount <= 13) return { 
+      fontSize: 'text-[9.5px]', 
+      padding: 'py-1.5 px-2', 
+      evalPadding: 'p-1.5',
+      evalFontSize: 'text-[8.5px]',
+      sectionMargin: 'mb-0',
+      headerMargin: 'mb-0',
+      resultPadding: 'p-2',
+      sigPadding: 'pt-4',
+      remarkMaxHeight: 'max-h-[50px]'
+    };
+    // Ultra-compact for 14+ subjects
+    return { 
+      fontSize: 'text-[9px]', 
+      padding: 'py-1 px-1.5', 
+      evalPadding: 'p-1',
+      evalFontSize: 'text-[8px]',
+      sectionMargin: 'mb-0',
+      headerMargin: 'mb-0',
+      resultPadding: 'p-1.5',
+      sigPadding: 'pt-3',
+      remarkMaxHeight: 'max-h-[40px]'
+    };
+  };
+
+  const s = getScaleStyles();
+
   return (
-    <div className={`w-[210mm] h-[297mm] bg-white p-[10mm] text-[#000000] font-sans relative overflow-hidden ${isBW ? 'grayscale-report' : ''}`} data-report-content>
-      <div className="border-[2.5px] border-black pt-6 px-6 pb-2 h-full flex flex-col relative">
-        {/* Decorative Corner Marks */}
-        <div className={`absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-[#1877F2] -m-[2.5px] ${isBW ? 'hidden' : ''}`} />
-        <div className={`absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-[#1877F2] -m-[2.5px] ${isBW ? 'hidden' : ''}`} />
-        <div className={`absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-[#1877F2] -m-[2.5px] ${isBW ? 'hidden' : ''}`} />
-        <div className={`absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-[#1877F2] -m-[2.5px] ${isBW ? 'hidden' : ''}`} />
+    <div id="report-card-to-print" className={`w-[210mm] h-[296mm] bg-white p-[5mm] text-[#000000] font-sans ${isBW ? 'grayscale-report' : ''}`} data-report-content style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+      <div className={`border-[2px] border-black h-full flex flex-col justify-between ${subjectCount > 10 ? 'p-2' : 'p-3'} overflow-hidden`}>
         
-        {/* PDF Header */}
-        <div className="text-center space-y-1 mb-3">
+        {/* 1. School Header Section */}
+        <header className={`shrink-0 text-center space-y-0.5 ${s.headerMargin}`}>
           <div className="flex justify-center mb-1">
-            <img src="https://i.ibb.co/zTgknf89/logo1jp.jpg" alt="Logo" className="h-16 w-auto" referrerPolicy="no-referrer" />
+            <img src="https://i.ibb.co/zTgknf89/logo1jp.jpg" alt="Logo" className="h-10 w-auto" referrerPolicy="no-referrer" />
           </div>
-          <p className={`text-[14px] font-black uppercase tracking-[0.3em] ${isBW ? 'text-black' : 'text-[#4B4F56]'}`}>SHREE GANESH EDUCATION ACADEMY'S</p>
+          <p className={`text-[10px] font-black uppercase tracking-[0.15em] ${isBW ? 'text-black' : 'text-[#4B4F56]'}`}>SHREE GANESH EDUCATION ACADEMY'S</p>
           
-          <div className="py-2 flex justify-center">
-            <h1 className={`text-[32px] font-serif font-black uppercase leading-tight tracking-tight text-center px-4 ${isBW ? 'text-black' : 'text-[#F27D26]'}`}>
+          <div className="py-0.5 flex justify-center">
+            <h1 className={`text-[20px] font-serif font-black uppercase leading-tight tracking-tight text-center px-4 ${isBW ? 'text-black' : 'text-[#E65100]'}`}>
               {schoolName}
             </h1>
           </div>
           
-          <p className={`text-[12px] font-bold uppercase tracking-widest ${isBW ? 'text-black' : 'text-[#65676B]'}`}>SECTOR 18, KOPARKHAIRANE, NAVI MUMBAI | UDISE: {udise}</p>
+          <p className={`text-[9px] font-bold uppercase tracking-widest ${isBW ? 'text-black' : 'text-[#65676B]'}`}>SECTOR 18, KOPARKHAIRANE, NAVI MUMBAI | UDISE: {udise}</p>
           
-          <div className="w-full h-[2px] bg-black my-3" />
+          <div className="w-full h-[1px] bg-black my-1" />
           
-          <div className={`inline-block border-[2px] border-black px-14 py-2.5 mt-1 ${isBW ? 'bg-white' : 'bg-[#E7F3FF]'}`}>
-            <p className={`text-lg font-black uppercase tracking-[0.15em] ${isBW ? 'text-black' : 'text-[#1877F2]'}`}>ANNUAL PROGRESS CARD 2025-26</p>
+          <div className={`inline-block border-[1px] border-black px-6 py-1 my-2 ${isBW ? 'bg-white' : 'bg-[#E7F3FF]'}`}>
+            <p className={`text-xs font-black uppercase tracking-[0.1em] ${isBW ? 'text-black' : 'text-[#0052CC]'}`}>ANNUAL PROGRESS CARD 2025-26</p>
           </div>
-        </div>
+        </header>
 
-        {/* PDF Student Info */}
-        <div className={`grid grid-cols-2 gap-x-10 gap-y-3 text-[13px] border-[1.5px] border-black p-4 mb-4 ${isBW ? 'bg-white' : 'bg-[#F7F8FA]'}`}>
-          <div className="flex items-baseline gap-2">
-            <span className={`font-black uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1877F2]'}`}>STUDENT NAME:</span>
-            <span className="border-b border-dotted border-black flex-1 font-bold uppercase truncate">{data.name}</span>
+        {/* 2. Student Information Section */}
+        <section className="shrink-0 mb-2">
+          <div className={`grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] border-[1px] border-black p-2 ${isBW ? 'bg-white' : 'bg-[#F0F7FF]'}`}>
+            <div className="flex items-baseline gap-2">
+              <span className={`font-black uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#0052CC]'}`}>STUDENT NAME:</span>
+              <span className="border-b border-dotted border-black flex-1 font-bold uppercase truncate">{data.name}</span>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className={`font-black uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#0052CC]'}`}>ROLL NO:</span>
+              <span className="border-b border-dotted border-black flex-1 font-bold uppercase">{data.rollNo}</span>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className={`font-black uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#0052CC]'}`}>STANDARD:</span>
+              <span className="border-b border-dotted border-black flex-1 font-bold uppercase">{data.std} - {data.division}</span>
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className={`font-black uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#0052CC]'}`}>D.O.B:</span>
+              <span className="border-b border-dotted border-black flex-1 font-bold uppercase">{data.dob}</span>
+            </div>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className={`font-black uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1877F2]'}`}>ROLL NO:</span>
-            <span className="border-b border-dotted border-black flex-1 font-bold uppercase">{data.rollNo}</span>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className={`font-black uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1877F2]'}`}>STANDARD:</span>
-            <span className="border-b border-dotted border-black flex-1 font-bold uppercase">{data.std} - {data.division}</span>
-          </div>
-          <div className="flex items-baseline gap-2">
-            <span className={`font-black uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1877F2]'}`}>D.O.B:</span>
-            <span className="border-b border-dotted border-black flex-1 font-bold uppercase">{data.dob}</span>
-          </div>
-        </div>
+        </section>
 
-        {/* PDF Grades Table */}
-        <table className="w-full border-collapse border-[1.5px] border-black mb-4">
-          <thead>
-            <tr className={`text-white text-[12px] font-black uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#1877F2]'}`}>
-              <th className="border-[1.5px] border-black p-2 w-12">SR.</th>
-              <th className="border-[1.5px] border-black p-2 text-left">SUBJECTS</th>
-              <th className="border-[1.5px] border-black p-2 w-44">FIRST SEMESTER</th>
-              <th className="border-[1.5px] border-black p-2 w-44">SECOND SEMESTER</th>
-            </tr>
-          </thead>
-          <tbody className="text-[13px] font-bold">
-            {data.subjects.map((s, index) => (
-              <tr key={s.id} className={index % 2 === 0 ? 'bg-white' : (isBW ? 'bg-[#F0F2F5]' : 'bg-[#F0F2F5]/30')}>
-                <td className="border-[1.5px] border-black p-2 text-center">{index + 1}</td>
-                <td className="border-[1.5px] border-black p-2 pl-6">{s.name}</td>
-                <td className="border-[1.5px] border-black p-2 text-center">{s.sem1}</td>
-                <td className="border-[1.5px] border-black p-2 text-center">{s.sem2}</td>
+        {/* 3. Subjects Table Section */}
+        <section className={`shrink-0 ${s.sectionMargin}`}>
+          <table className="w-full border-collapse border-[1px] border-black">
+            <thead>
+              <tr className={`text-white text-[9px] font-black uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#0052CC]'}`}>
+                <th className={`border-[1px] border-black ${s.padding} w-8`}>SR.</th>
+                <th className={`border-[1px] border-black ${s.padding} text-left`}>SUBJECTS</th>
+                <th className={`border-[1px] border-black ${s.padding} w-28`}>FIRST SEMESTER</th>
+                <th className={`border-[1px] border-black ${s.padding} w-28`}>SECOND SEMESTER</th>
               </tr>
-            ))}
-            <tr className={isBW ? 'bg-[#F0F2F5]' : 'bg-[#E7F3FF]'}>
-              <td colSpan={2} className={`border-[1.5px] border-black p-2.5 text-center uppercase tracking-widest font-black ${isBW ? 'text-black' : 'text-[#1877F2]'}`}>OVERALL PERCENTAGE (%)</td>
-              <td colSpan={2} className={`border-[1.5px] border-black p-2.5 text-center text-xl font-black ${isBW ? 'text-black' : 'text-[#F27D26]'}`}>{data.overallPercentage} %</td>
-            </tr>
-          </tbody>
-        </table>
+            </thead>
+            <tbody className={`${s.fontSize} font-bold`}>
+              {data.subjects.map((s_item, index) => (
+                <tr key={s_item.id} className={index % 2 === 0 ? 'bg-white' : (isBW ? 'bg-[#F0F2F5]' : 'bg-[#F0F7FF]/50')}>
+                  <td className={`border-[1px] border-black ${s.padding} text-center`}>{index + 1}</td>
+                  <td className={`border-[1px] border-black ${s.padding} pl-2`}>{s_item.name}</td>
+                  <td className={`border-[1px] border-black ${s.padding} text-center`}>{s_item.sem1}</td>
+                  <td className={`border-[1px] border-black ${s.padding} text-center`}>{s_item.sem2}</td>
+                </tr>
+              ))}
+              <tr className={isBW ? 'bg-[#F0F2F5]' : 'bg-[#E7F3FF]'}>
+                <td colSpan={2} className={`border-[1px] border-black p-1.5 text-center uppercase tracking-widest font-black ${isBW ? 'text-black' : 'text-[#0052CC]'}`}>OVERALL PERCENTAGE (%)</td>
+                <td colSpan={2} className={`border-[1px] border-black p-1.5 text-center text-base font-black ${isBW ? 'text-black' : 'text-[#E65100]'}`}>{data.overallPercentage} %</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
 
-        {/* PDF Evaluation Criteria */}
-        <table className="w-full border-collapse border-[1.5px] border-black mb-4">
-          <thead>
-            <tr className={`text-white text-[12px] font-black uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#42B72A]'}`}>
-              <th className="border-[1.5px] border-black p-2 text-left">EVALUATION CRITERIA</th>
-              <th className="border-[1.5px] border-black p-2 w-44">FIRST SEMESTER</th>
-              <th className="border-[1.5px] border-black p-2 w-44">SECOND SEMESTER</th>
-            </tr>
-          </thead>
-          <tbody className="text-[12px] font-bold italic">
-            <tr>
-              <td className="border-[1.5px] border-black p-2.5 uppercase bg-[#F7F8FA]/50 font-black">SPECIAL IMPROVEMENTS</td>
-              <td className="border-[1.5px] border-black p-2.5">{data.remarks.sem1.specialImprovements}</td>
-              <td className="border-[1.5px] border-black p-2.5">{data.remarks.sem2.specialImprovements}</td>
-            </tr>
-            <tr>
-              <td className="border-[1.5px] border-black p-2.5 uppercase bg-[#F7F8FA]/50 font-black">HOBBIES & INTERESTS</td>
-              <td className="border-[1.5px] border-black p-2.5">{data.remarks.sem1.hobbies}</td>
-              <td className="border-[1.5px] border-black p-2.5">{data.remarks.sem2.hobbies}</td>
-            </tr>
-            <tr>
-              <td className="border-[1.5px] border-black p-2.5 uppercase bg-[#F7F8FA]/50 font-black">NECESSARY IMPROVEMENTS</td>
-              <td className="border-[1.5px] border-black p-2.5">{data.remarks.sem1.necessaryImprovement}</td>
-              <td className="border-[1.5px] border-black p-2.5">{data.remarks.sem2.necessaryImprovement}</td>
-            </tr>
-          </tbody>
-        </table>
+        {/* 4. Evaluation Criteria Table Section */}
+        <section className={`shrink-0 ${s.sectionMargin}`}>
+          <table className="w-full border-collapse border-[1px] border-black">
+            <thead>
+              <tr className={`text-white text-[8px] font-black uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#00C853]'}`}>
+                <th className={`border-[1px] border-black ${s.evalPadding} text-left`}>EVALUATION CRITERIA</th>
+                <th className={`border-[1px] border-black ${s.evalPadding} w-28`}>FIRST SEMESTER</th>
+                <th className={`border-[1px] border-black ${s.evalPadding} w-28`}>SECOND SEMESTER</th>
+              </tr>
+            </thead>
+            <tbody className={`${s.evalFontSize} font-bold italic`}>
+              <tr>
+                <td className={`border-[1px] border-black ${s.evalPadding} uppercase bg-[#F7F8FA]/50 font-black`}>SPECIAL IMPROVEMENTS</td>
+                <td className={`border-[1px] border-black ${s.evalPadding}`}>
+                  <div className={`${s.remarkMaxHeight} overflow-hidden`}>{data.remarks.sem1.specialImprovements}</div>
+                </td>
+                <td className={`border-[1px] border-black ${s.evalPadding}`}>
+                  <div className={`${s.remarkMaxHeight} overflow-hidden`}>{data.remarks.sem2.specialImprovements}</div>
+                </td>
+              </tr>
+              <tr>
+                <td className={`border-[1px] border-black ${s.evalPadding} uppercase bg-[#F7F8FA]/50 font-black`}>HOBBIES & INTERESTS</td>
+                <td className={`border-[1px] border-black ${s.evalPadding}`}>
+                  <div className={`${s.remarkMaxHeight} overflow-hidden`}>{data.remarks.sem1.hobbies}</div>
+                </td>
+                <td className={`border-[1px] border-black ${s.evalPadding}`}>
+                  <div className={`${s.remarkMaxHeight} overflow-hidden`}>{data.remarks.sem2.hobbies}</div>
+                </td>
+              </tr>
+              <tr>
+                <td className={`border-[1px] border-black ${s.evalPadding} uppercase bg-[#F7F8FA]/50 font-black`}>NECESSARY IMPROVEMENTS</td>
+                <td className={`border-[1px] border-black ${s.evalPadding}`}>
+                  <div className={`${s.remarkMaxHeight} overflow-hidden`}>{data.remarks.sem1.necessaryImprovement}</div>
+                </td>
+                <td className={`border-[1px] border-black ${s.evalPadding}`}>
+                  <div className={`${s.remarkMaxHeight} overflow-hidden`}>{data.remarks.sem2.necessaryImprovement}</div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
 
-        {/* PDF Grade Scale */}
-        <div className={`grid grid-cols-8 border-[1.5px] border-black text-[9px] font-black text-center mb-4 ${isBW ? 'bg-white' : 'bg-[#F7F8FA]'}`}>
-          <div className="border-r border-black p-1.5">91%+(A1)</div>
-          <div className="border-r border-black p-1.5">81-90%(A2)</div>
-          <div className="border-r border-black p-1.5">71-80%(B1)</div>
-          <div className="border-r border-black p-1.5">61-70%(B2)</div>
-          <div className="border-r border-black p-1.5">51-60%(C1)</div>
-          <div className="border-r border-black p-1.5">41-50%(C2)</div>
-          <div className="border-r border-black p-1.5">33-40%(D)</div>
-          <div className="p-1.5">&lt;33%(E)</div>
-        </div>
-
-        {/* PDF Result Section */}
-        <div className={`border-[2px] border-black p-4 text-center space-y-1 mb-4 ${isBW ? 'bg-white' : 'bg-[#F7F8FA]'}`}>
-          <p className="text-lg font-black uppercase">
-            RESULT: <span className={isBW ? 'text-black' : 'text-[#FA3E3E]'}>{data.result}</span> | PROMOTED TO: <span className={isBW ? 'text-black' : 'text-[#1877F2]'}>{data.promotedTo}</span>
-          </p>
-          <p className={`text-[12px] font-black uppercase tracking-[0.25em] ${isBW ? 'text-black' : 'text-[#65676B]'}`}>SCHOOL REOPENS: {data.schoolReopens}</p>
-        </div>
-
-        {/* PDF Signatures */}
-        <div className="mt-auto grid grid-cols-2 gap-24 px-12 pb-0">
-          <div className="border-t-[1.5px] border-black pt-2 text-center">
-            <p className="text-[11px] font-black uppercase tracking-widest">CLASS TEACHER'S SIGN</p>
+        {/* 5. Grade Scale Section */}
+        <section className={`shrink-0 ${s.sectionMargin}`}>
+          <div className={`grid grid-cols-8 border-[1px] border-black text-[7px] font-black text-center ${isBW ? 'bg-white' : 'bg-[#F7F8FA]'}`}>
+            <div className="border-r border-black p-0.5">91%+(A1)</div>
+            <div className="border-r border-black p-0.5">81-90%(A2)</div>
+            <div className="border-r border-black p-0.5">71-80%(B1)</div>
+            <div className="border-r border-black p-0.5">61-70%(B2)</div>
+            <div className="border-r border-black p-0.5">51-60%(C1)</div>
+            <div className="border-r border-black p-0.5">41-50%(C2)</div>
+            <div className="border-r border-black p-0.5">33-40%(D)</div>
+            <div className="p-0.5">&lt;33%(E)</div>
           </div>
-          <div className="border-t-[1.5px] border-black pt-2 text-center">
-            <p className="text-[11px] font-black uppercase tracking-widest">PRINCIPAL'S SIGN</p>
-          </div>
+        </section>
+
+        {/* 6. Result & Signatures Section */}
+        <div className="flex flex-col shrink-0">
+          <section className="mb-3">
+            <div className={`border-[1.5px] border-black ${s.resultPadding} text-center space-y-0.5 ${isBW ? 'bg-white' : 'bg-[#F0F7FF]'}`}>
+              <p className="text-xs font-black uppercase">
+                RESULT: <span className={isBW ? 'text-black' : 'text-[#D32F2F]'}>{data.result}</span> | PROMOTED TO: <span className={isBW ? 'text-black' : 'text-[#0052CC]'}>{data.promotedTo}</span>
+              </p>
+              <p className={`text-[9px] font-black uppercase tracking-[0.1em] ${isBW ? 'text-black' : 'text-[#4B4F56]'}`}>SCHOOL REOPENS: {data.schoolReopens}</p>
+            </div>
+          </section>
+
+          <footer className={`px-4 ${s.sigPadding}`}>
+            <div className="grid grid-cols-2 gap-12">
+              <div className="border-t-[1px] border-black pt-1 text-center">
+                <p className="text-[8px] font-black uppercase tracking-widest">CLASS TEACHER'S SIGN</p>
+              </div>
+              <div className="border-t-[1px] border-black pt-1 text-center">
+                <p className="text-[8px] font-black uppercase tracking-widest">PRINCIPAL'S SIGN</p>
+              </div>
+            </div>
+          </footer>
         </div>
       </div>
     </div>
