@@ -710,8 +710,8 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
               <tr className={`text-white text-[9px] font-black uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#0052CC]'}`}>
                 <th className={`border-[1px] border-black ${s.padding} w-8`}>SR.</th>
                 <th className={`border-[1px] border-black ${s.padding} text-left`}>SUBJECTS</th>
-                <th className={`border-[1px] border-black ${s.padding} w-28`}>FIRST SEMESTER</th>
-                <th className={`border-[1px] border-black ${s.padding} w-28`}>SECOND SEMESTER</th>
+                <th className={`border-[1px] border-black ${s.padding} w-44`}>FIRST SEMESTER</th>
+                <th className={`border-[1px] border-black ${s.padding} w-44`}>SECOND SEMESTER</th>
               </tr>
             </thead>
             <tbody className={`${s.fontSize} font-bold`}>
@@ -737,8 +737,8 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
             <thead>
               <tr className={`text-white text-[8px] font-black uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#00C853]'}`}>
                 <th className={`border-[1px] border-black ${s.evalPadding} text-left`}>EVALUATION CRITERIA</th>
-                <th className={`border-[1px] border-black ${s.evalPadding} w-28`}>FIRST SEMESTER</th>
-                <th className={`border-[1px] border-black ${s.evalPadding} w-28`}>SECOND SEMESTER</th>
+                <th className={`border-[1px] border-black ${s.evalPadding} w-44`}>FIRST SEMESTER</th>
+                <th className={`border-[1px] border-black ${s.evalPadding} w-44`}>SECOND SEMESTER</th>
               </tr>
             </thead>
             <tbody className={`${s.evalFontSize} font-bold italic`}>
