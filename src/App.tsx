@@ -497,11 +497,11 @@ export default function App() {
         </div>
 
         {/* Hidden Report Template for PDF Generation */}
-        <div className="absolute opacity-0 pointer-events-none -z-50 overflow-hidden" style={{ width: '210mm', height: '297mm', top: '-10000px' }}>
-          <div ref={reportRef} style={{ width: '210mm' }}>
+        <div className="fixed top-0 left-0 pointer-events-none -z-50 overflow-hidden" style={{ width: '210mm', height: '297mm', transform: 'translateX(-1000%)' }}>
+          <div ref={reportRef} style={{ width: '210mm', height: '297mm', backgroundColor: 'white' }}>
             <ReportContent data={data} schoolName={schoolName} udise={udise} isBW={false} />
           </div>
-          <div ref={reportBWRef} style={{ width: '210mm' }}>
+          <div ref={reportBWRef} style={{ width: '210mm', height: '297mm', backgroundColor: 'white' }}>
             <ReportContent data={data} schoolName={schoolName} udise={udise} isBW={true} />
           </div>
         </div>
@@ -667,7 +667,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
           <p className={`text-[10px] font-black uppercase tracking-[0.15em] ${isBW ? 'text-black' : 'text-[#4B4F56]'}`}>SHREE GANESH EDUCATION ACADEMY'S</p>
           
           <div className="py-0.5 flex justify-center">
-            <h1 className={`text-[20px] font-serif font-black uppercase leading-tight tracking-tight text-center px-4 ${isBW ? 'text-black' : 'text-[#E65100]'}`}>
+            <h1 className={`text-[24px] font-serif font-black uppercase leading-tight tracking-tight text-center px-4 ${isBW ? 'text-black' : 'text-[#E65100]'}`}>
               {schoolName}
             </h1>
           </div>
@@ -676,39 +676,41 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
           
           <div className="w-full h-[1px] bg-black my-1" />
           
-          <div className={`inline-block border-[1px] border-black px-6 py-1 mt-4 mb-1 ${isBW ? 'bg-white' : 'bg-[#E7F3FF]'}`}>
-            <p className={`text-[12px] font-black uppercase tracking-wider ${isBW ? 'text-black' : 'text-[#0052CC]'}`}>ANNUAL PROGRESS CARD 2025-26</p>
+          <div className="flex justify-center mt-3 mb-1">
+            <div className={`border-[1.5px] border-black px-10 py-2 ${isBW ? 'bg-white' : 'bg-[#E3F2FD]'}`}>
+              <p className={`text-[14px] font-bold uppercase tracking-tight ${isBW ? 'text-black' : 'text-[#0D47A1]'}`}>ANNUAL PROGRESS CARD 2025-26</p>
+            </div>
           </div>
         </header>
 
         {/* 2. Student Information Section */}
-        <section className="shrink-0 mb-2">
-          <div className={`grid grid-cols-2 gap-x-4 gap-y-1 text-[10px] border-[1px] border-black p-2 ${isBW ? 'bg-white' : 'bg-[#F0F7FF]'}`}>
+        <section className="shrink-0 mb-3">
+          <div className={`grid grid-cols-2 gap-x-6 gap-y-2 text-[11px] border-[1.5px] border-black p-3 ${isBW ? 'bg-white' : 'bg-[#F5F9FF]'}`}>
             <div className="flex items-baseline gap-2">
-              <span className={`font-black uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#0052CC]'}`}>STUDENT NAME:</span>
-              <span className="border-b border-dotted border-black flex-1 font-bold uppercase truncate">{data.name}</span>
+              <span className={`font-bold uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>STUDENT NAME:</span>
+              <span className="flex-1 font-bold uppercase truncate">{data.name}</span>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className={`font-black uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#0052CC]'}`}>ROLL NO:</span>
-              <span className="border-b border-dotted border-black flex-1 font-bold uppercase">{data.rollNo}</span>
+              <span className={`font-bold uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>ROLL NO:</span>
+              <span className="flex-1 font-bold uppercase">{data.rollNo}</span>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className={`font-black uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#0052CC]'}`}>STANDARD:</span>
-              <span className="border-b border-dotted border-black flex-1 font-bold uppercase">{data.std} - {data.division}</span>
+              <span className={`font-bold uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>STANDARD:</span>
+              <span className="flex-1 font-bold uppercase">{data.std} - {data.division}</span>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className={`font-black uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#0052CC]'}`}>D.O.B:</span>
-              <span className="border-b border-dotted border-black flex-1 font-bold uppercase">{data.dob}</span>
+              <span className={`font-bold uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>D.O.B:</span>
+              <span className="flex-1 font-bold uppercase">{data.dob}</span>
             </div>
           </div>
         </section>
 
         {/* 3. Subjects Table Section */}
         <section className={`shrink-0 ${s.sectionMargin}`}>
-          <table className="w-full border-collapse border-[1px] border-black">
+          <table className="w-full border-collapse border-[1.5px] border-black">
             <thead>
-              <tr className={`text-white text-[11px] font-black uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#0052CC]'}`}>
-                <th className={`border-[1px] border-black ${s.padding} w-8`}>SR.</th>
+              <tr className={`text-white text-[11px] font-bold uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#1976D2]'}`}>
+                <th className={`border-[1px] border-black ${s.padding} w-10`}>SR.</th>
                 <th className={`border-[1px] border-black ${s.padding} text-left`}>SUBJECTS</th>
                 <th className={`border-[1px] border-black ${s.padding} w-60`}>FIRST SEMESTER</th>
                 <th className={`border-[1px] border-black ${s.padding} w-60`}>SECOND SEMESTER</th>
@@ -716,16 +718,16 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
             </thead>
             <tbody className={`${s.fontSize} font-bold`}>
               {data.subjects.map((s_item, index) => (
-                <tr key={s_item.id} className={index % 2 === 0 ? 'bg-white' : (isBW ? 'bg-[#F0F2F5]' : 'bg-[#F0F7FF]/50')}>
+                <tr key={s_item.id} className={index % 2 === 0 ? 'bg-white' : (isBW ? 'bg-[#F5F5F5]' : 'bg-[#F5F9FF]')}>
                   <td className={`border-[1px] border-black ${s.padding} text-center`}>{index + 1}</td>
-                  <td className={`border-[1px] border-black ${s.padding} pl-2`}>{s_item.name}</td>
+                  <td className={`border-[1px] border-black ${s.padding} pl-3`}>{s_item.name}</td>
                   <td className={`border-[1px] border-black ${s.padding} text-center`}>{s_item.sem1}</td>
                   <td className={`border-[1px] border-black ${s.padding} text-center`}>{s_item.sem2}</td>
                 </tr>
               ))}
-              <tr className={isBW ? 'bg-[#F0F2F5]' : 'bg-[#E7F3FF]'}>
-                <td colSpan={2} className={`border-[1px] border-black p-1.5 text-center uppercase tracking-widest font-black ${isBW ? 'text-black' : 'text-[#0052CC]'}`}>OVERALL PERCENTAGE (%)</td>
-                <td colSpan={2} className={`border-[1px] border-black p-1.5 text-center text-base font-black ${isBW ? 'text-black' : 'text-[#E65100]'}`}>{data.overallPercentage} %</td>
+              <tr className={isBW ? 'bg-[#F5F5F5]' : 'bg-[#E3F2FD]'}>
+                <td colSpan={2} className={`border-[1px] border-black p-2 text-center uppercase tracking-wider font-bold ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>OVERALL PERCENTAGE (%)</td>
+                <td colSpan={2} className={`border-[1px] border-black p-2 text-center text-base font-bold ${isBW ? 'text-black' : 'text-[#E65100]'}`}>{data.overallPercentage} %</td>
               </tr>
             </tbody>
           </table>
@@ -733,9 +735,9 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
 
         {/* 4. Evaluation Criteria Table Section */}
         <section className={`shrink-0 ${s.sectionMargin}`}>
-          <table className="w-full border-collapse border-[1px] border-black">
+          <table className="w-full border-collapse border-[1.5px] border-black">
             <thead>
-              <tr className={`text-white text-[10px] font-black uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#00C853]'}`}>
+              <tr className={`text-white text-[10px] font-bold uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#2E7D32]'}`}>
                 <th className={`border-[1px] border-black ${s.evalPadding} text-left`}>EVALUATION CRITERIA</th>
                 <th className={`border-[1px] border-black ${s.evalPadding} w-60`}>FIRST SEMESTER</th>
                 <th className={`border-[1px] border-black ${s.evalPadding} w-60`}>SECOND SEMESTER</th>
@@ -743,7 +745,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
             </thead>
             <tbody className={`${s.evalFontSize} font-bold italic`}>
               <tr>
-                <td className={`border-[1px] border-black ${s.evalPadding} uppercase bg-[#F7F8FA]/50 font-black`}>SPECIAL IMPROVEMENTS</td>
+                <td className={`border-[1px] border-black ${s.evalPadding} uppercase bg-[#F9FAFB] font-bold`}>SPECIAL IMPROVEMENTS</td>
                 <td className={`border-[1px] border-black ${s.evalPadding}`}>
                   <div className={`${s.remarkMaxHeight} overflow-hidden`}>{data.remarks.sem1.specialImprovements}</div>
                 </td>
@@ -752,7 +754,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
                 </td>
               </tr>
               <tr>
-                <td className={`border-[1px] border-black ${s.evalPadding} uppercase bg-[#F7F8FA]/50 font-black`}>HOBBIES & INTERESTS</td>
+                <td className={`border-[1px] border-black ${s.evalPadding} uppercase bg-[#F9FAFB] font-bold`}>HOBBIES & INTERESTS</td>
                 <td className={`border-[1px] border-black ${s.evalPadding}`}>
                   <div className={`${s.remarkMaxHeight} overflow-hidden`}>{data.remarks.sem1.hobbies}</div>
                 </td>
@@ -761,7 +763,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
                 </td>
               </tr>
               <tr>
-                <td className={`border-[1px] border-black ${s.evalPadding} uppercase bg-[#F7F8FA]/50 font-black`}>NECESSARY IMPROVEMENTS</td>
+                <td className={`border-[1px] border-black ${s.evalPadding} uppercase bg-[#F9FAFB] font-bold`}>NECESSARY IMPROVEMENTS</td>
                 <td className={`border-[1px] border-black ${s.evalPadding}`}>
                   <div className={`${s.remarkMaxHeight} overflow-hidden`}>{data.remarks.sem1.necessaryImprovement}</div>
                 </td>
@@ -789,12 +791,12 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
 
         {/* 6. Result & Signatures Section */}
         <div className="flex flex-col shrink-0">
-          <section className="mb-3">
-            <div className={`border-[1.5px] border-black ${s.resultPadding} text-center space-y-0.5 ${isBW ? 'bg-white' : 'bg-[#F0F7FF]'}`}>
-              <p className="text-xs font-black uppercase">
-                RESULT: <span className={isBW ? 'text-black' : 'text-[#D32F2F]'}>{data.result}</span> | PROMOTED TO: <span className={isBW ? 'text-black' : 'text-[#0052CC]'}>{data.promotedTo}</span>
+          <section className="mb-4">
+            <div className={`border-[1.5px] border-black ${s.resultPadding} text-center space-y-1 ${isBW ? 'bg-white' : 'bg-[#F5F9FF]'}`}>
+              <p className="text-[13px] font-bold uppercase">
+                RESULT: <span className={isBW ? 'text-black' : 'text-[#C62828]'}>{data.result}</span> | PROMOTED TO: <span className={isBW ? 'text-black' : 'text-[#1565C0]'}>{data.promotedTo}</span>
               </p>
-              <p className={`text-[9px] font-black uppercase tracking-[0.1em] ${isBW ? 'text-black' : 'text-[#4B4F56]'}`}>SCHOOL REOPENS: {data.schoolReopens}</p>
+              <p className={`text-[10px] font-bold uppercase tracking-widest ${isBW ? 'text-black' : 'text-[#455A64]'}`}>SCHOOL REOPENS: {data.schoolReopens}</p>
             </div>
           </section>
 
