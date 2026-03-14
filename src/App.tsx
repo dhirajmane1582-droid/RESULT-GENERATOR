@@ -603,8 +603,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
       sectionMargin: 'mb-0',
       headerMargin: 'mb-0',
       resultPadding: 'p-4',
-      sigPadding: 'pt-7',
-      remarkMaxHeight: 'max-h-[100px]'
+      sigPadding: 'pt-7'
     };
     if (subjectCount <= 9) return { 
       fontSize: 'text-[11px]', 
@@ -614,8 +613,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
       sectionMargin: 'mb-0',
       headerMargin: 'mb-0',
       resultPadding: 'p-3.5',
-      sigPadding: 'pt-6',
-      remarkMaxHeight: 'max-h-[80px]'
+      sigPadding: 'pt-6'
     };
     if (subjectCount <= 11) return { 
       fontSize: 'text-[10px]', 
@@ -625,8 +623,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
       sectionMargin: 'mb-0',
       headerMargin: 'mb-0',
       resultPadding: 'p-3',
-      sigPadding: 'pt-5',
-      remarkMaxHeight: 'max-h-[60px]'
+      sigPadding: 'pt-5'
     };
     if (subjectCount <= 13) return { 
       fontSize: 'text-[9.5px]', 
@@ -636,8 +633,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
       sectionMargin: 'mb-0',
       headerMargin: 'mb-0',
       resultPadding: 'p-2',
-      sigPadding: 'pt-4',
-      remarkMaxHeight: 'max-h-[50px]'
+      sigPadding: 'pt-4'
     };
     // Ultra-compact for 14+ subjects
     return { 
@@ -648,8 +644,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
       sectionMargin: 'mb-0',
       headerMargin: 'mb-0',
       resultPadding: 'p-1.5',
-      sigPadding: 'pt-3',
-      remarkMaxHeight: 'max-h-[40px]'
+      sigPadding: 'pt-3'
     };
   };
 
@@ -743,32 +738,32 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
                 <th className={`border-[1px] border-black ${s.evalPadding} w-60`}>SECOND SEMESTER</th>
               </tr>
             </thead>
-            <tbody className={`${s.evalFontSize} font-bold italic`}>
+            <tbody className={`${s.evalFontSize} font-bold italic leading-normal`}>
               <tr>
                 <td className={`border-[1px] border-black ${s.evalPadding} uppercase bg-[#F9FAFB] font-bold`}>SPECIAL IMPROVEMENTS</td>
                 <td className={`border-[1px] border-black ${s.evalPadding}`}>
-                  <div className={`${s.remarkMaxHeight} overflow-hidden`}>{data.remarks.sem1.specialImprovements}</div>
+                  {data.remarks.sem1.specialImprovements}
                 </td>
                 <td className={`border-[1px] border-black ${s.evalPadding}`}>
-                  <div className={`${s.remarkMaxHeight} overflow-hidden`}>{data.remarks.sem2.specialImprovements}</div>
+                  {data.remarks.sem2.specialImprovements}
                 </td>
               </tr>
               <tr>
                 <td className={`border-[1px] border-black ${s.evalPadding} uppercase bg-[#F9FAFB] font-bold`}>HOBBIES & INTERESTS</td>
                 <td className={`border-[1px] border-black ${s.evalPadding}`}>
-                  <div className={`${s.remarkMaxHeight} overflow-hidden`}>{data.remarks.sem1.hobbies}</div>
+                  {data.remarks.sem1.hobbies}
                 </td>
                 <td className={`border-[1px] border-black ${s.evalPadding}`}>
-                  <div className={`${s.remarkMaxHeight} overflow-hidden`}>{data.remarks.sem2.hobbies}</div>
+                  {data.remarks.sem2.hobbies}
                 </td>
               </tr>
               <tr>
                 <td className={`border-[1px] border-black ${s.evalPadding} uppercase bg-[#F9FAFB] font-bold`}>NECESSARY IMPROVEMENTS</td>
                 <td className={`border-[1px] border-black ${s.evalPadding}`}>
-                  <div className={`${s.remarkMaxHeight} overflow-hidden`}>{data.remarks.sem1.necessaryImprovement}</div>
+                  {data.remarks.sem1.necessaryImprovement}
                 </td>
                 <td className={`border-[1px] border-black ${s.evalPadding}`}>
-                  <div className={`${s.remarkMaxHeight} overflow-hidden`}>{data.remarks.sem2.necessaryImprovement}</div>
+                  {data.remarks.sem2.necessaryImprovement}
                 </td>
               </tr>
             </tbody>
