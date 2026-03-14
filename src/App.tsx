@@ -659,10 +659,10 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
           <div className="flex justify-center mb-1">
             <img src="https://i.ibb.co/zTgknf89/logo1jp.jpg" alt="Logo" className="h-10 w-auto" referrerPolicy="no-referrer" />
           </div>
-          <p className={`text-[10px] font-black uppercase tracking-[0.15em] ${isBW ? 'text-black' : 'text-[#4B4F56]'}`}>SHREE GANESH EDUCATION ACADEMY'S</p>
+          <p className={`text-[14px] font-black uppercase tracking-[0.15em] ${isBW ? 'text-black' : 'text-[#4B4F56]'}`}>SHREE GANESH EDUCATION ACADEMY'S</p>
           
           <div className="py-0.5 flex justify-center">
-            <h1 className={`text-[24px] font-serif font-black uppercase leading-tight tracking-tight text-center px-4 ${isBW ? 'text-black' : 'text-[#E65100]'}`}>
+            <h1 className={`text-[32px] font-serif font-black uppercase leading-tight tracking-tight text-center px-4 ${isBW ? 'text-black' : 'text-[#E65100]'}`}>
               {schoolName}
             </h1>
           </div>
