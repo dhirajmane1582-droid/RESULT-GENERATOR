@@ -681,19 +681,19 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
         {/* 2. Student Information Section */}
         <section className="shrink-0 mb-3">
           <div className={`grid grid-cols-2 gap-x-6 gap-y-2 text-[11px] border-[1.5px] border-black p-3 ${isBW ? 'bg-white' : 'bg-[#F5F9FF]'}`}>
-            <div className="flex items-baseline gap-2">
+            <div className="flex items-center gap-2">
               <span className={`font-bold uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>STUDENT NAME:</span>
-              <span className="flex-1 font-bold uppercase truncate">{data.name}</span>
+              <span className="flex-1 font-bold uppercase whitespace-normal leading-tight">{data.name}</span>
             </div>
-            <div className="flex items-baseline gap-2">
+            <div className="flex items-center gap-2">
               <span className={`font-bold uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>ROLL NO:</span>
               <span className="flex-1 font-bold uppercase">{data.rollNo}</span>
             </div>
-            <div className="flex items-baseline gap-2">
+            <div className="flex items-center gap-2">
               <span className={`font-bold uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>STANDARD:</span>
               <span className="flex-1 font-bold uppercase">{data.std} - {data.division}</span>
             </div>
-            <div className="flex items-baseline gap-2">
+            <div className="flex items-center gap-2">
               <span className={`font-bold uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>D.O.B:</span>
               <span className="flex-1 font-bold uppercase">{data.dob}</span>
             </div>
@@ -704,7 +704,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
         <section className={`shrink-0 ${s.sectionMargin}`}>
           <table className="w-full border-collapse border-[1.5px] border-black">
             <thead>
-              <tr className={`text-white text-[11px] font-bold uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#1976D2]'}`}>
+              <tr className={`text-white text-[13px] font-bold uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#1976D2]'}`}>
                 <th className={`border-[1px] border-black ${s.padding} w-10`}>SR.</th>
                 <th className={`border-[1px] border-black ${s.padding} text-left`}>SUBJECTS</th>
                 <th className={`border-[1px] border-black ${s.padding} w-60`}>FIRST SEMESTER</th>
@@ -732,7 +732,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
         <section className={`shrink-0 ${s.sectionMargin}`}>
           <table className="w-full border-collapse border-[1.5px] border-black">
             <thead>
-              <tr className={`text-white text-[10px] font-bold uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#2E7D32]'}`}>
+              <tr className={`text-white text-[12px] font-bold uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#2E7D32]'}`}>
                 <th className={`border-[1px] border-black ${s.evalPadding} text-left`}>EVALUATION CRITERIA</th>
                 <th className={`border-[1px] border-black ${s.evalPadding} w-60`}>FIRST SEMESTER</th>
                 <th className={`border-[1px] border-black ${s.evalPadding} w-60`}>SECOND SEMESTER</th>
