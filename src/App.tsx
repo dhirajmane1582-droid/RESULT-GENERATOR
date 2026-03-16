@@ -704,7 +704,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
         <section className={`shrink-0 ${s.sectionMargin}`}>
           <table className="w-full border-collapse border-[1.5px] border-black">
             <thead>
-              <tr className={`text-white text-[13px] font-bold uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#1976D2]'}`}>
+              <tr className={`text-white text-[15px] font-bold uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#1976D2]'}`}>
                 <th className={`border-[1px] border-black ${s.padding} w-10`}>SR.</th>
                 <th className={`border-[1px] border-black ${s.padding} text-left`}>SUBJECTS</th>
                 <th className={`border-[1px] border-black ${s.padding} w-60`}>FIRST SEMESTER</th>
@@ -732,7 +732,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
         <section className={`shrink-0 ${s.sectionMargin}`}>
           <table className="w-full border-collapse border-[1.5px] border-black">
             <thead>
-              <tr className={`text-white text-[12px] font-bold uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#2E7D32]'}`}>
+              <tr className={`text-white text-[15px] font-bold uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#2E7D32]'}`}>
                 <th className={`border-[1px] border-black ${s.evalPadding} text-left`}>EVALUATION CRITERIA</th>
                 <th className={`border-[1px] border-black ${s.evalPadding} w-60`}>FIRST SEMESTER</th>
                 <th className={`border-[1px] border-black ${s.evalPadding} w-60`}>SECOND SEMESTER</th>
