@@ -12,15 +12,27 @@ interface Remarks {
 interface StudentData {
   name: string;
   std: string;
-  division: string;
   rollNo: string;
   dob: string;
   medium: 'English' | 'Semi';
   overallPercentage: string;
+  sem1Percentage: string;
+  sem2Percentage: string;
+  totalMarks: string;
+  minMarks: string;
   result: string;
   promotedTo: string;
   schoolReopens: string;
-  subjects: { id: string; name: string; sem1: string; sem2: string }[];
+  subjects: { 
+    id: string; 
+    name: string; 
+    sem1: string; 
+    sem2: string;
+    total1: string;
+    min1: string;
+    total2: string;
+    min2: string;
+  }[];
   remarks: {
     sem1: Remarks;
     sem2: Remarks;
@@ -33,41 +45,47 @@ const STANDARDS = [
   '6th', '7th', '8th', '9th', '10th'
 ];
 
-const SUBJECT_MAPPING: Record<string, string[]> = {
-  'NUR': ['English', 'Maths', 'Drawing', 'Oral'],
-  'JR. KG': ['English', 'Maths', 'Drawing', 'Oral'],
-  'SR. KG': ['English', 'Maths', 'Drawing', 'Oral'],
-  '1st': ['English', 'Marathi', 'Hindi', 'Maths', 'E.V.S'],
-  '2nd': ['English', 'Marathi', 'Hindi', 'Maths', 'E.V.S'],
-  '3rd': ['English', 'Marathi', 'Hindi', 'Maths', 'E.V.S'],
-  '4th': ['English', 'Marathi', 'Hindi', 'Maths', 'E.V.S'],
-  '5th': ['Marathi', 'Hindi', 'English', 'Maths', 'History', 'Geography', 'Science'],
-  '6th': ['Marathi', 'Hindi', 'English', 'Maths', 'History', 'Geography', 'Science'],
-  '7th': ['Marathi', 'Hindi', 'English', 'Maths', 'History', 'Geography', 'Science'],
-  '8th': ['Marathi', 'Hindi', 'English', 'Maths', 'History', 'Geography', 'Science'],
-  '9th': ['Marathi', 'Hindi', 'English', 'Maths', 'Science', 'Social Science'],
-  '10th': ['Marathi', 'Hindi', 'English', 'Maths', 'Science', 'Social Science'],
+const getSubjects = (std: string, medium: 'English' | 'Semi'): string[] => {
+  if (['NUR', 'JR. KG', 'SR. KG'].includes(std)) {
+    return ['English', 'Maths', 'Drawing', 'Oral'];
+  }
+  if (['1st', '2nd', '3rd', '4th'].includes(std)) {
+    return ['English', 'Marathi', 'Hindi', 'Maths', 'E.V.S', 'Arts', 'W.E.', 'P.T.'];
+  }
+  if (['5th', '6th', '7th', '8th', '9th'].includes(std)) {
+    if (medium === 'English') {
+      return ['English', 'Hindi', 'Marathi', 'Maths', 'Science', 'Social Science', 'Arts', 'Work Experience', 'Physical Education'];
+    } else {
+      return ['Marathi', 'Hindi', 'English', 'Maths', 'Science', 'Social Science', 'Arts', 'Work Experience', 'Physical Education'];
+    }
+  }
+  return ['Marathi', 'Hindi', 'English', 'Maths', 'Science', 'Social Science'];
 };
-
-const DEFAULT_SUBJECTS = SUBJECT_MAPPING['1st'].map((name, index) => ({
-  id: (index + 1).toString(),
-  name,
-  sem1: '',
-  sem2: ''
-}));
 
 const INITIAL_DATA: StudentData = {
   name: '',
   std: '1st',
-  division: 'A',
   rollNo: '',
   dob: '',
   medium: 'English',
   overallPercentage: '',
+  sem1Percentage: '',
+  sem2Percentage: '',
+  totalMarks: '1000',
+  minMarks: '350',
   result: 'PASS',
   promotedTo: '',
   schoolReopens: '11TH JUNE 2026',
-  subjects: [...DEFAULT_SUBJECTS],
+  subjects: getSubjects('1st', 'English').map((name, index) => ({
+    id: (index + 1).toString(),
+    name,
+    sem1: '',
+    sem2: '',
+    total1: '100',
+    min1: '35',
+    total2: '100',
+    min2: '35'
+  })),
   remarks: {
     sem1: { specialImprovements: '', hobbies: '', necessaryImprovement: '' },
     sem2: { specialImprovements: '', hobbies: '', necessaryImprovement: '' }
@@ -91,6 +109,42 @@ export default function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  useEffect(() => {
+    if (data.std === '5th' || data.std === '8th') {
+      let total1 = 0;
+      let possible1 = 0;
+      let total2 = 0;
+      let possible2 = 0;
+
+      data.subjects.forEach(s => {
+        if (s.sem1 !== '' && !isNaN(Number(s.sem1))) { 
+          total1 += Number(s.sem1); 
+          possible1 += Number(data.totalMarks) || 100; 
+        }
+        if (s.sem2 !== '' && !isNaN(Number(s.sem2))) { 
+          total2 += Number(s.sem2); 
+          possible2 += Number(data.totalMarks) || 100; 
+        }
+      });
+
+      const overallTotal = total1 + total2;
+      const overallPossible = possible1 + possible2;
+      
+      const newSem1Percentage = possible1 > 0 ? ((total1 / possible1) * 100).toFixed(2) : '';
+      const newSem2Percentage = possible2 > 0 ? ((total2 / possible2) * 100).toFixed(2) : '';
+      const newOverallPercentage = overallPossible > 0 ? ((overallTotal / overallPossible) * 100).toFixed(2) : '';
+
+      if (data.sem1Percentage !== newSem1Percentage || data.sem2Percentage !== newSem2Percentage || data.overallPercentage !== newOverallPercentage) {
+        setData(prev => ({ 
+          ...prev, 
+          sem1Percentage: newSem1Percentage, 
+          sem2Percentage: newSem2Percentage, 
+          overallPercentage: newOverallPercentage 
+        }));
+      }
+    }
+  }, [data.subjects, data.std, data.overallPercentage, data.sem1Percentage, data.sem2Percentage, data.totalMarks]);
+
   const schoolName = data.medium === 'English' 
     ? 'INDRAYANI ENGLISH MEDIUM SCHOOL' 
     : 'INDRAYANI INTERNATIONAL SCHOOL';
@@ -100,7 +154,7 @@ export default function App() {
     : '27211003501/27211003519';
 
   const handleStandardChange = (std: string) => {
-    const subjectNames = SUBJECT_MAPPING[std] || SUBJECT_MAPPING['1st'];
+    const subjectNames = getSubjects(std, data.medium);
     setData(prev => ({
       ...prev,
       std,
@@ -108,7 +162,29 @@ export default function App() {
         id: (index + 1).toString(),
         name,
         sem1: '',
-        sem2: ''
+        sem2: '',
+        total1: '100',
+        min1: '35',
+        total2: '100',
+        min2: '35'
+      }))
+    }));
+  };
+
+  const handleMediumChange = (medium: 'English' | 'Semi') => {
+    const subjectNames = getSubjects(data.std, medium);
+    setData(prev => ({
+      ...prev,
+      medium,
+      subjects: subjectNames.map((name, index) => ({
+        id: (index + 1).toString(),
+        name,
+        sem1: '',
+        sem2: '',
+        total1: '100',
+        min1: '35',
+        total2: '100',
+        min2: '35'
       }))
     }));
   };
@@ -130,7 +206,16 @@ export default function App() {
   const addSubject = () => {
     setData(prev => ({
       ...prev,
-      subjects: [...prev.subjects, { id: Math.random().toString(36).substr(2, 9), name: 'New Subject', sem1: '', sem2: '' }]
+      subjects: [...prev.subjects, { 
+        id: Math.random().toString(36).substr(2, 9), 
+        name: 'New Subject', 
+        sem1: '', 
+        sem2: '',
+        total1: '100',
+        min1: '35',
+        total2: '100',
+        min2: '35'
+      }]
     }));
   };
 
@@ -185,6 +270,29 @@ export default function App() {
       
       pdf.addImage(imgData, 'PNG', 0, 0, 210, 296, undefined, 'FAST');
       pdf.save(`Result_${data.name || 'Student'}_${mode}.pdf`);
+
+      // Automatically clear form fields for new entry, keeping common fields
+      setData(prev => ({
+        ...prev,
+        name: '',
+        rollNo: '',
+        dob: '',
+        overallPercentage: '',
+        result: 'PASS',
+        subjects: prev.subjects.map(s => ({ 
+          ...s, 
+          sem1: '', 
+          sem2: '',
+          total1: '100',
+          min1: '35',
+          total2: '100',
+          min2: '35'
+        })),
+        remarks: {
+          sem1: { specialImprovements: '', hobbies: '', necessaryImprovement: '' },
+          sem2: { specialImprovements: '', hobbies: '', necessaryImprovement: '' }
+        }
+      }));
     } catch (error) {
       console.error('PDF generation failed:', error);
       alert('Failed to generate PDF. Please try again.');
@@ -309,7 +417,7 @@ export default function App() {
                   <label className="text-[11px] font-bold text-[#65676B] uppercase ml-0.5">Medium</label>
                   <select 
                     value={data.medium}
-                    onChange={(e) => setData(prev => ({ ...prev, medium: e.target.value as 'English' | 'Semi' }))}
+                    onChange={(e) => handleMediumChange(e.target.value as 'English' | 'Semi')}
                     className="w-full px-3 py-2 bg-[#F0F2F5] border border-[#CCD0D5] rounded-lg focus:ring-2 focus:ring-[#1877F2]/20 focus:border-[#1877F2] outline-none transition-all font-medium text-sm"
                   >
                     <option value="English">English</option>
@@ -335,16 +443,6 @@ export default function App() {
                   >
                     {STANDARDS.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold text-[#65676B] uppercase ml-0.5">Division</label>
-                  <input 
-                    type="text"
-                    value={data.division}
-                    onChange={(e) => setData(prev => ({ ...prev, division: e.target.value }))}
-                    placeholder="e.g. A"
-                    className="w-full px-3 py-2 bg-[#F0F2F5] border border-[#CCD0D5] rounded-lg focus:ring-2 focus:ring-[#1877F2]/20 focus:border-[#1877F2] outline-none transition-all font-medium text-sm"
-                  />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-[11px] font-bold text-[#65676B] uppercase ml-0.5">Roll Number</label>
@@ -375,14 +473,41 @@ export default function App() {
                   <BookOpen className="w-4 h-4" /> Academic Grades
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-bold text-[#65676B] uppercase">Overall %</span>
-                  <input 
-                    type="text"
-                    value={data.overallPercentage}
-                    onChange={(e) => setData(prev => ({ ...prev, overallPercentage: e.target.value }))}
-                    placeholder="0.00"
-                    className="w-20 px-2 py-1 bg-[#F0F2F5] border border-[#CCD0D5] rounded text-center font-mono font-bold text-sm focus:border-[#1877F2] outline-none"
-                  />
+                  { (data.std === '5th' || data.std === '8th') ? (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-[#65676B] uppercase">Total Marks</span>
+                        <input 
+                          type="text"
+                          value={data.totalMarks}
+                          onChange={(e) => setData(prev => ({ ...prev, totalMarks: e.target.value }))}
+                          placeholder="100"
+                          className="w-16 px-2 py-1 bg-[#F0F2F5] border border-[#CCD0D5] rounded text-center font-mono font-bold text-sm focus:border-[#1877F2] outline-none"
+                        />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-[#65676B] uppercase">Min Marks</span>
+                        <input 
+                          type="text"
+                          value={data.minMarks}
+                          onChange={(e) => setData(prev => ({ ...prev, minMarks: e.target.value }))}
+                          placeholder="35"
+                          className="w-16 px-2 py-1 bg-[#F0F2F5] border border-[#CCD0D5] rounded text-center font-mono font-bold text-sm focus:border-[#1877F2] outline-none"
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-bold text-[#65676B] uppercase">Overall %</span>
+                      <input 
+                        type="text"
+                        value={data.overallPercentage}
+                        onChange={(e) => setData(prev => ({ ...prev, overallPercentage: e.target.value }))}
+                        placeholder="0.00"
+                        className="w-20 px-2 py-1 bg-[#F0F2F5] border border-[#CCD0D5] rounded text-center font-mono font-bold text-sm focus:border-[#1877F2] outline-none"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -390,31 +515,54 @@ export default function App() {
                 {data.subjects.map((s) => (
                   <div key={s.id} className="p-3 rounded-lg border border-[#EBEDF0] bg-[#F0F2F5]/50 space-y-2">
                     <h3 className="text-[11px] font-bold text-[#4B4F56] tracking-wide">{s.name}</h3>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-[#90949C] uppercase block">Sem 1</label>
-                        <input 
-                          type="text"
-                          value={s.sem1}
-                          onChange={(e) => handleSubjectChange(s.id, 'sem1', e.target.value)}
-                          placeholder="Grade/No"
-                          className="w-full px-2 py-1.5 bg-white border border-[#CCD0D5] rounded text-center font-bold text-sm focus:border-[#1877F2] outline-none"
-                        />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <label className="text-[9px] font-bold text-[#90949C] uppercase block border-b pb-1">Sem 1</label>
+                        <div className="grid grid-cols-1 gap-1">
+                          <div className="space-y-0.5">
+                            <span className="text-[7px] text-[#90949C] uppercase font-bold">Obt</span>
+                            <input 
+                              type="text"
+                              value={s.sem1}
+                              onChange={(e) => handleSubjectChange(s.id, 'sem1', e.target.value)}
+                              placeholder="Gr/No"
+                              className="w-full px-1 py-1 bg-white border border-[#CCD0D5] rounded text-center font-bold text-sm focus:border-[#1877F2] outline-none"
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div className="space-y-1">
-                        <label className="text-[9px] font-bold text-[#90949C] uppercase block">Sem 2</label>
-                        <input 
-                          type="text"
-                          value={s.sem2}
-                          onChange={(e) => handleSubjectChange(s.id, 'sem2', e.target.value)}
-                          placeholder="Grade/No"
-                          className="w-full px-2 py-1.5 bg-white border border-[#CCD0D5] rounded text-center font-bold text-sm focus:border-[#1877F2] outline-none"
-                        />
+                      <div className="space-y-2">
+                        <label className="text-[9px] font-bold text-[#90949C] uppercase block border-b pb-1">Sem 2</label>
+                        <div className="grid grid-cols-1 gap-1">
+                          <div className="space-y-0.5">
+                            <span className="text-[7px] text-[#90949C] uppercase font-bold">Obt</span>
+                            <input 
+                              type="text"
+                              value={s.sem2}
+                              onChange={(e) => handleSubjectChange(s.id, 'sem2', e.target.value)}
+                              placeholder="Gr/No"
+                              className="w-full px-1 py-1 bg-white border border-[#CCD0D5] rounded text-center font-bold text-sm focus:border-[#1877F2] outline-none"
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
+
+              { (data.std === '5th' || data.std === '8th') && (
+                <div className="pt-4 border-t border-[#EBEDF0] grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="p-3 rounded-lg bg-[#E3F2FD]/50 border border-[#BBDEFB] flex flex-col items-center justify-center gap-1">
+                    <span className="text-[10px] font-bold text-[#1565C0] uppercase">Sem 1 Percentage</span>
+                    <span className="text-lg font-black text-[#0D47A1]">{data.sem1Percentage || '0.00'}%</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-[#E3F2FD]/50 border border-[#BBDEFB] flex flex-col items-center justify-center gap-1">
+                    <span className="text-[10px] font-bold text-[#1565C0] uppercase">Sem 2 Percentage</span>
+                    <span className="text-lg font-black text-[#0D47A1]">{data.sem2Percentage || '0.00'}%</span>
+                  </div>
+                </div>
+              )}
             </section>
           </div>
 
@@ -586,32 +734,38 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
   const getScaleStyles = () => {
     if (subjectCount <= 5) return { 
       fontSize: 'text-[13px]', 
-      padding: 'py-5 px-4', 
+      padding: 'py-4 px-4', 
       evalPadding: 'p-4',
+      evalHeaderPadding: 'py-1.5 px-4',
       evalFontSize: 'text-[12px]',
-      sectionMargin: 'mb-0',
-      headerMargin: 'mb-0',
+      sectionMargin: 'mb-1',
+      evalMargin: 'mb-4',
+      headerMargin: 'mb-1',
       resultPadding: 'p-5',
       sigPadding: 'pt-8',
       remarkMaxHeight: 'max-h-[120px]'
     };
     if (subjectCount <= 7) return { 
       fontSize: 'text-[12px]', 
-      padding: 'py-4 px-4', 
+      padding: 'py-3 px-4', 
       evalPadding: 'p-3.5',
+      evalHeaderPadding: 'py-1.5 px-4',
       evalFontSize: 'text-[11px]',
-      sectionMargin: 'mb-0',
-      headerMargin: 'mb-0',
+      sectionMargin: 'mb-1',
+      evalMargin: 'mb-3',
+      headerMargin: 'mb-1',
       resultPadding: 'p-4',
       sigPadding: 'pt-7'
     };
     if (subjectCount <= 9) return { 
       fontSize: 'text-[11px]', 
-      padding: 'py-3 px-3', 
+      padding: 'py-2.5 px-3', 
       evalPadding: 'p-3',
+      evalHeaderPadding: 'py-1 px-3',
       evalFontSize: 'text-[10px]',
-      sectionMargin: 'mb-0',
-      headerMargin: 'mb-0',
+      sectionMargin: 'mb-0.5',
+      evalMargin: 'mb-2',
+      headerMargin: 'mb-0.5',
       resultPadding: 'p-3.5',
       sigPadding: 'pt-6'
     };
@@ -619,9 +773,11 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
       fontSize: 'text-[10px]', 
       padding: 'py-2 px-2', 
       evalPadding: 'p-2',
+      evalHeaderPadding: 'py-1 px-2',
       evalFontSize: 'text-[9px]',
-      sectionMargin: 'mb-0',
-      headerMargin: 'mb-0',
+      sectionMargin: 'mb-0.5',
+      evalMargin: 'mb-1.5',
+      headerMargin: 'mb-0.5',
       resultPadding: 'p-3',
       sigPadding: 'pt-5'
     };
@@ -629,19 +785,23 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
       fontSize: 'text-[9.5px]', 
       padding: 'py-1.5 px-2', 
       evalPadding: 'p-1.5',
+      evalHeaderPadding: 'py-0.5 px-2',
       evalFontSize: 'text-[8.5px]',
       sectionMargin: 'mb-0',
+      evalMargin: 'mb-1',
       headerMargin: 'mb-0',
       resultPadding: 'p-2',
       sigPadding: 'pt-4'
     };
     // Ultra-compact for 14+ subjects
     return { 
-      fontSize: 'text-[9px]', 
+      fontSize: 'text-[8.5px]', 
       padding: 'py-1 px-1.5', 
       evalPadding: 'p-1',
+      evalHeaderPadding: 'py-0.5 px-1.5',
       evalFontSize: 'text-[8px]',
       sectionMargin: 'mb-0',
+      evalMargin: 'mb-0.5',
       headerMargin: 'mb-0',
       resultPadding: 'p-1.5',
       sigPadding: 'pt-3'
@@ -649,6 +809,11 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
   };
 
   const s = getScaleStyles();
+  const totalSem1 = data.subjects.reduce((sum, sub) => sum + (isNaN(Number(sub.sem1)) || sub.sem1 === '' ? 0 : Number(sub.sem1)), 0);
+  const totalSem2 = data.subjects.reduce((sum, sub) => sum + (isNaN(Number(sub.sem2)) || sub.sem2 === '' ? 0 : Number(sub.sem2)), 0);
+  const totalPossible1 = data.subjects.reduce((sum, sub) => sum + (sub.sem1 !== '' && !isNaN(Number(sub.sem1)) ? (Number(sub.total1) || 100) : 0), 0);
+  const totalPossible2 = data.subjects.reduce((sum, sub) => sum + (sub.sem2 !== '' && !isNaN(Number(sub.sem2)) ? (Number(sub.total2) || 100) : 0), 0);
+  const isNumericData = data.subjects.some(sub => (sub.sem1 !== '' && !isNaN(Number(sub.sem1))) || (sub.sem2 !== '' && !isNaN(Number(sub.sem2))));
 
   return (
     <div id="report-card-to-print" className={`w-[210mm] h-[296mm] bg-white p-[5mm] text-[#000000] font-sans ${isBW ? 'grayscale-report' : ''}`} data-report-content style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
@@ -691,51 +856,108 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
             </div>
             <div className="flex items-center gap-2">
               <span className={`font-bold uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>STANDARD:</span>
-              <span className="flex-1 font-bold uppercase">{data.std} - {data.division}</span>
+              <span className="flex-1 font-bold uppercase">{data.std}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className={`font-bold uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>D.O.B:</span>
-              <span className="flex-1 font-bold uppercase">{data.dob}</span>
+              <span className="flex-1 font-bold uppercase">{data.dob ? data.dob.split('-').reverse().join('') : ''}</span>
             </div>
           </div>
         </section>
 
         {/* 3. Subjects Table Section */}
-        <section className={`shrink-0 ${s.sectionMargin}`}>
-          <table className="w-full border-collapse border-[1.5px] border-black">
-            <thead>
-              <tr className={`text-white text-[15px] font-bold uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#1976D2]'}`}>
-                <th className={`border-[1px] border-black ${s.padding} w-10`}>SR.</th>
-                <th className={`border-[1px] border-black ${s.padding} text-left`}>SUBJECTS</th>
-                <th className={`border-[1px] border-black ${s.padding} w-60`}>FIRST SEMESTER</th>
-                <th className={`border-[1px] border-black ${s.padding} w-60`}>SECOND SEMESTER</th>
-              </tr>
-            </thead>
-            <tbody className={`${s.fontSize} font-bold`}>
-              {data.subjects.map((s_item, index) => (
-                <tr key={s_item.id} className={index % 2 === 0 ? 'bg-white' : (isBW ? 'bg-[#F5F5F5]' : 'bg-[#F5F9FF]')}>
-                  <td className={`border-[1px] border-black ${s.padding} text-center`}>{index + 1}</td>
-                  <td className={`border-[1px] border-black ${s.padding} pl-3`}>{s_item.name}</td>
-                  <td className={`border-[1px] border-black ${s.padding} text-center`}>{s_item.sem1}</td>
-                  <td className={`border-[1px] border-black ${s.padding} text-center`}>{s_item.sem2}</td>
-                </tr>
-              ))}
-              <tr className={isBW ? 'bg-[#F5F5F5]' : 'bg-[#E3F2FD]'}>
-                <td colSpan={2} className={`border-[1px] border-black p-2 text-center uppercase tracking-wider font-bold ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>OVERALL PERCENTAGE (%)</td>
-                <td colSpan={2} className={`border-[1px] border-black p-2 text-center text-base font-bold ${isBW ? 'text-black' : 'text-[#E65100]'}`}>{data.overallPercentage} %</td>
-              </tr>
-            </tbody>
-          </table>
+        <section className={`flex-grow flex flex-col min-h-0 ${s.sectionMargin}`}>
+          <div className="flex-grow overflow-hidden">
+            <table className="w-full border-collapse border-[1.5px] border-black h-full">
+              <thead>
+                { (data.std === '5th' || data.std === '8th') ? (
+                  <>
+                    <tr className={`text-white text-[13px] font-bold uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#1976D2]'}`}>
+                      <th rowSpan={2} className={`border-[1px] border-black ${s.padding} text-left`}>SUBJECTS</th>
+                      <th colSpan={3} className={`border-[1px] border-black ${s.padding}`}>FIRST SEMESTER</th>
+                      <th colSpan={3} className={`border-[1px] border-black ${s.padding}`}>SECOND SEMESTER</th>
+                    </tr>
+                    <tr className={`text-white text-[10px] font-bold uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#1976D2]'}`}>
+                      <th className={`border-[1px] border-black p-1 w-20`}>TOTAL</th>
+                      <th className={`border-[1px] border-black p-1 w-20`}>MIN</th>
+                      <th className={`border-[1px] border-black p-1 w-20`}>OBTAIN</th>
+                      <th className={`border-[1px] border-black p-1 w-20`}>TOTAL</th>
+                      <th className={`border-[1px] border-black p-1 w-20`}>MIN</th>
+                      <th className={`border-[1px] border-black p-1 w-20`}>OBTAIN</th>
+                    </tr>
+                  </>
+                ) : (
+                  <tr className={`text-white text-[15px] font-bold uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#1976D2]'}`}>
+                    <th className={`border-[1px] border-black ${s.padding} w-10`}>SR.</th>
+                    <th className={`border-[1px] border-black ${s.padding} text-left`}>SUBJECTS</th>
+                    <th className={`border-[1px] border-black ${s.padding} w-60`}>FIRST SEMESTER</th>
+                    <th className={`border-[1px] border-black ${s.padding} w-60`}>SECOND SEMESTER</th>
+                  </tr>
+                )}
+              </thead>
+              <tbody className={`${s.fontSize} font-bold`}>
+                {data.subjects.map((s_item, index) => (
+                  <tr key={s_item.id} className={index % 2 === 0 ? 'bg-white' : (isBW ? 'bg-[#F5F5F5]' : 'bg-[#F5F9FF]')}>
+                    { (data.std === '5th' || data.std === '8th') ? (
+                      <>
+                        <td className={`border-[1px] border-black ${s.padding} pl-3`}>{s_item.name}</td>
+                        <td className={`border-[1px] border-black ${s.padding} text-center`}>{data.totalMarks}</td>
+                        <td className={`border-[1px] border-black ${s.padding} text-center`}>{data.minMarks}</td>
+                        <td className={`border-[1px] border-black ${s.padding} text-center`}>{s_item.sem1}</td>
+                        <td className={`border-[1px] border-black ${s.padding} text-center`}>{data.totalMarks}</td>
+                        <td className={`border-[1px] border-black ${s.padding} text-center`}>{data.minMarks}</td>
+                        <td className={`border-[1px] border-black ${s.padding} text-center`}>{s_item.sem2}</td>
+                      </>
+                    ) : (
+                      <>
+                        <td className={`border-[1px] border-black ${s.padding} text-center`}>{index + 1}</td>
+                        <td className={`border-[1px] border-black ${s.padding} pl-3`}>{s_item.name}</td>
+                        <td className={`border-[1px] border-black ${s.padding} text-center`}>{s_item.sem1}</td>
+                        <td className={`border-[1px] border-black ${s.padding} text-center`}>{s_item.sem2}</td>
+                      </>
+                    )}
+                  </tr>
+                ))}
+                {(data.std === '5th' || data.std === '8th') && isNumericData ? (
+                  <>
+                    <tr className={isBW ? 'bg-[#F5F5F5]' : 'bg-[#E3F2FD]'}>
+                      <td className={`border-[1px] border-black p-2 text-center uppercase tracking-wider font-bold ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>TOTAL MARKS</td>
+                      <td className={`border-[1px] border-black p-2 text-center font-bold`}>{totalPossible1}</td>
+                      <td className={`border-[1px] border-black p-2 text-center font-bold`}>-</td>
+                      <td className={`border-[1px] border-black p-2 text-center font-bold`}>{totalSem1}</td>
+                      <td className={`border-[1px] border-black p-2 text-center font-bold`}>{totalPossible2}</td>
+                      <td className={`border-[1px] border-black p-2 text-center font-bold`}>-</td>
+                      <td className={`border-[1px] border-black p-2 text-center font-bold`}>{totalSem2}</td>
+                    </tr>
+                    <tr className={isBW ? 'bg-[#F5F5F5]' : 'bg-[#E3F2FD]'}>
+                      <td className={`border-[1px] border-black p-2 text-center uppercase tracking-wider font-bold ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>PERCENTAGE (%)</td>
+                      <td colSpan={3} className={`border-[1px] border-black p-2 text-center text-base font-bold ${isBW ? 'text-black' : 'text-[#E65100]'}`}>
+                        {data.sem1Percentage || '0.00'} %
+                      </td>
+                      <td colSpan={3} className={`border-[1px] border-black p-2 text-center text-base font-bold ${isBW ? 'text-black' : 'text-[#E65100]'}`}>
+                        {data.sem2Percentage || '0.00'} %
+                      </td>
+                    </tr>
+                  </>
+                ) : (
+                  <tr className={isBW ? 'bg-[#F5F5F5]' : 'bg-[#E3F2FD]'}>
+                    <td colSpan={2} className={`border-[1px] border-black p-2 text-center uppercase tracking-wider font-bold ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>OVERALL PERCENTAGE (%)</td>
+                    <td colSpan={2} className={`border-[1px] border-black p-2 text-center text-base font-bold ${isBW ? 'text-black' : 'text-[#E65100]'}`}>{data.overallPercentage} %</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </section>
 
         {/* 4. Evaluation Criteria Table Section */}
-        <section className={`shrink-0 ${s.sectionMargin}`}>
+        <section className={`shrink-0 ${s.evalMargin}`}>
           <table className="w-full border-collapse border-[1.5px] border-black">
             <thead>
               <tr className={`text-white text-[15px] font-bold uppercase ${isBW ? 'bg-[#151619]' : 'bg-[#2E7D32]'}`}>
-                <th className={`border-[1px] border-black ${s.evalPadding} text-left`}>EVALUATION CRITERIA</th>
-                <th className={`border-[1px] border-black ${s.evalPadding} w-60`}>FIRST SEMESTER</th>
-                <th className={`border-[1px] border-black ${s.evalPadding} w-60`}>SECOND SEMESTER</th>
+                <th className={`border-[1px] border-black ${s.evalHeaderPadding} text-left`}>EVALUATION CRITERIA</th>
+                <th className={`border-[1px] border-black ${s.evalHeaderPadding} w-60`}>FIRST SEMESTER</th>
+                <th className={`border-[1px] border-black ${s.evalHeaderPadding} w-60`}>SECOND SEMESTER</th>
               </tr>
             </thead>
             <tbody className={`${s.evalFontSize} font-bold italic leading-normal`}>
