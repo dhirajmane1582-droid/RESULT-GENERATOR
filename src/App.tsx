@@ -367,8 +367,8 @@ export default function App() {
               }
 
               const style = htmlEl.style;
-              style.webkitFontSmoothing = 'antialiased';
-              style.mozOsxFontSmoothing = 'grayscale';
+              style.setProperty('-webkit-font-smoothing', 'antialiased');
+              style.setProperty('-moz-osx-font-smoothing', 'grayscale');
               style.textRendering = 'optimizeLegibility';
               // Prevent text compression by ensuring letter-spacing is preserved
               if (!style.letterSpacing) {
