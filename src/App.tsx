@@ -587,7 +587,7 @@ export default function App() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[11px] font-bold text-[#65676B] uppercase ml-0.5">Promoted To</label>
+                  <label className="text-[11px] font-bold text-[#65676B] uppercase ml-0.5">NEXT YEAR'S STANDARD</label>
                   <input 
                     type="text"
                     value={data.promotedTo}
@@ -787,7 +787,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
       evalPadding: 'p-1.5',
       evalHeaderPadding: 'py-0.5 px-2',
       evalFontSize: 'text-[8.5px]',
-      sectionMargin: 'mb-0',
+      sectionMargin: 'mb-1',
       evalMargin: 'mb-1',
       headerMargin: 'mb-0',
       resultPadding: 'p-2',
@@ -800,7 +800,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
       evalPadding: 'p-1',
       evalHeaderPadding: 'py-0.5 px-1.5',
       evalFontSize: 'text-[8px]',
-      sectionMargin: 'mb-0',
+      sectionMargin: 'mb-0.5',
       evalMargin: 'mb-0.5',
       headerMargin: 'mb-0',
       resultPadding: 'p-1.5',
@@ -836,7 +836,11 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
           
           <div className="w-full flex items-center justify-center my-0.5">
             <div className={`flex-1 h-[1px] ${isBW ? 'bg-black' : 'bg-gradient-to-r from-transparent via-black to-black'}`} />
-            <div className={`mx-4 w-1.5 h-1.5 rotate-45 ${isBW ? 'bg-black' : 'bg-[#8B0000]'}`} />
+            <div className="flex items-center gap-1.5 mx-4">
+              <div className={`w-1 h-1 rotate-45 ${isBW ? 'bg-black' : 'bg-[#8B0000]'}`} />
+              <div className={`w-1.5 h-1.5 rotate-45 ${isBW ? 'bg-black' : 'bg-[#8B0000]'}`} />
+              <div className={`w-1 h-1 rotate-45 ${isBW ? 'bg-black' : 'bg-[#8B0000]'}`} />
+            </div>
             <div className={`flex-1 h-[1px] ${isBW ? 'bg-black' : 'bg-gradient-to-l from-transparent via-black to-black'}`} />
           </div>
           
@@ -925,28 +929,28 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
                 {(data.std === '5th' || data.std === '8th') && isNumericData ? (
                   <>
                     <tr className={isBW ? 'bg-[#F5F5F5]' : 'bg-[#E3F2FD]'}>
-                      <td className={`border-[1px] border-black p-2 text-center uppercase tracking-wider font-bold ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>TOTAL MARKS</td>
-                      <td className={`border-[1px] border-black p-2 text-center font-bold`}>{totalPossible1}</td>
-                      <td className={`border-[1px] border-black p-2 text-center font-bold`}>-</td>
-                      <td className={`border-[1px] border-black p-2 text-center font-bold`}>{totalSem1}</td>
-                      <td className={`border-[1px] border-black p-2 text-center font-bold`}>{totalPossible2}</td>
-                      <td className={`border-[1px] border-black p-2 text-center font-bold`}>-</td>
-                      <td className={`border-[1px] border-black p-2 text-center font-bold`}>{totalSem2}</td>
+                      <td className={`border-[1px] border-black ${s.padding} text-center uppercase tracking-wider font-bold ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>TOTAL MARKS</td>
+                      <td className={`border-[1px] border-black ${s.padding} text-center font-bold`}>{totalPossible1}</td>
+                      <td className={`border-[1px] border-black ${s.padding} text-center font-bold`}>-</td>
+                      <td className={`border-[1px] border-black ${s.padding} text-center font-bold`}>{totalSem1}</td>
+                      <td className={`border-[1px] border-black ${s.padding} text-center font-bold`}>{totalPossible2}</td>
+                      <td className={`border-[1px] border-black ${s.padding} text-center font-bold`}>-</td>
+                      <td className={`border-[1px] border-black ${s.padding} text-center font-bold`}>{totalSem2}</td>
                     </tr>
                     <tr className={isBW ? 'bg-[#F5F5F5]' : 'bg-[#E3F2FD]'}>
-                      <td className={`border-[1px] border-black p-2 text-center uppercase tracking-wider font-bold ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>PERCENTAGE (%)</td>
-                      <td colSpan={3} className={`border-[1px] border-black p-2 text-center text-base font-bold ${isBW ? 'text-black' : 'text-[#E65100]'}`}>
+                      <td className={`border-[1px] border-black ${s.padding} text-center uppercase tracking-wider font-bold ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>PERCENTAGE (%)</td>
+                      <td colSpan={3} className={`border-[1px] border-black ${s.padding} text-center text-base font-bold ${isBW ? 'text-black' : 'text-[#E65100]'}`}>
                         {data.sem1Percentage || '0.00'} %
                       </td>
-                      <td colSpan={3} className={`border-[1px] border-black p-2 text-center text-base font-bold ${isBW ? 'text-black' : 'text-[#E65100]'}`}>
+                      <td colSpan={3} className={`border-[1px] border-black ${s.padding} text-center text-base font-bold ${isBW ? 'text-black' : 'text-[#E65100]'}`}>
                         {data.sem2Percentage || '0.00'} %
                       </td>
                     </tr>
                   </>
                 ) : (
                   <tr className={isBW ? 'bg-[#F5F5F5]' : 'bg-[#E3F2FD]'}>
-                    <td colSpan={2} className={`border-[1px] border-black p-2 text-center uppercase tracking-wider font-bold ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>OVERALL PERCENTAGE (%)</td>
-                    <td colSpan={2} className={`border-[1px] border-black p-2 text-center text-base font-bold ${isBW ? 'text-black' : 'text-[#E65100]'}`}>{data.overallPercentage} %</td>
+                    <td colSpan={2} className={`border-[1px] border-black ${s.padding} text-center uppercase tracking-wider font-bold ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>OVERALL PERCENTAGE (%)</td>
+                    <td colSpan={2} className={`border-[1px] border-black ${s.padding} text-center text-base font-bold ${isBW ? 'text-black' : 'text-[#E65100]'}`}>{data.overallPercentage} %</td>
                   </tr>
                 )}
               </tbody>
@@ -1015,7 +1019,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
           <section className="mb-4">
             <div className={`border-[1.5px] border-black ${s.resultPadding} text-center space-y-1 ${isBW ? 'bg-white' : 'bg-[#F5F9FF]'} shadow-sm`}>
               <p className="text-[13px] font-bold uppercase">
-                RESULT: <span className={isBW ? 'text-black' : 'text-[#C62828]'}>{data.result}</span> | PROMOTED TO: <span className={isBW ? 'text-black' : 'text-[#1565C0]'}>{data.promotedTo}</span>
+                RESULT: <span className={isBW ? 'text-black' : 'text-[#C62828]'}>{data.result}</span> | NEXT YEAR'S STANDARD: <span className={isBW ? 'text-black' : 'text-[#1565C0]'}>{data.promotedTo}</span>
               </p>
               <p className={`text-[10px] font-bold uppercase tracking-widest ${isBW ? 'text-black' : 'text-[#455A64]'}`}>SCHOOL REOPENS: {data.schoolReopens}</p>
             </div>
