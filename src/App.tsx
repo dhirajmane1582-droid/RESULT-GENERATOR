@@ -827,17 +827,21 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
           <p className={`text-[14px] font-black uppercase tracking-[0.15em] ${isBW ? 'text-black' : 'text-[#4B4F56]'}`}>SHREE GANESH EDUCATION ACADEMY'S</p>
           
           <div className="py-0.5 flex justify-center">
-            <h1 className={`text-[32px] font-serif font-black uppercase leading-tight tracking-tight text-center px-4 ${isBW ? 'text-black' : 'text-[#E65100]'}`}>
+            <h1 className={`text-[32px] font-serif font-black uppercase leading-tight tracking-tight text-center px-4 ${isBW ? 'text-black' : 'text-[#8B0000]'}`}>
               {schoolName}
             </h1>
           </div>
           
-          <p className={`text-[9px] font-bold uppercase tracking-widest ${isBW ? 'text-black' : 'text-[#65676B]'}`}>SECTOR 18, KOPARKHAIRANE, NAVI MUMBAI | UDISE: {udise}</p>
+          <p className={`text-[9px] font-black uppercase tracking-widest ${isBW ? 'text-black' : 'text-[#65676B]'}`}>SECTOR 18, KOPARKHAIRANE, NAVI MUMBAI | UDISE: {udise}</p>
           
-          <div className="w-full h-[1px] bg-black my-1" />
+          <div className="w-full flex items-center justify-center my-0.5">
+            <div className={`flex-1 h-[1px] ${isBW ? 'bg-black' : 'bg-gradient-to-r from-transparent via-black to-black'}`} />
+            <div className={`mx-4 w-1.5 h-1.5 rotate-45 ${isBW ? 'bg-black' : 'bg-[#8B0000]'}`} />
+            <div className={`flex-1 h-[1px] ${isBW ? 'bg-black' : 'bg-gradient-to-l from-transparent via-black to-black'}`} />
+          </div>
           
           <div className="flex justify-center mt-3 mb-1">
-            <div className={`border-[1.5px] border-black px-10 py-2 ${isBW ? 'bg-white' : 'bg-[#E3F2FD]'}`}>
+            <div className={`border-[1.5px] border-black px-10 py-2 ${isBW ? 'bg-white' : 'bg-gradient-to-b from-[#E3F2FD] to-[#BBDEFB]'} shadow-md`}>
               <p className={`text-[14px] font-bold uppercase tracking-tight ${isBW ? 'text-black' : 'text-[#0D47A1]'}`}>ANNUAL PROGRESS CARD 2025-26</p>
             </div>
           </div>
@@ -845,7 +849,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
 
         {/* 2. Student Information Section */}
         <section className="shrink-0 mb-3">
-          <div className={`grid grid-cols-2 gap-x-6 gap-y-2 text-[11px] border-[1.5px] border-black p-3 ${isBW ? 'bg-white' : 'bg-[#F5F9FF]'}`}>
+          <div className={`grid grid-cols-2 gap-x-6 gap-y-2 text-[11px] border-[1.5px] border-black p-3 ${isBW ? 'bg-white' : 'bg-[#F5F9FF]'} shadow-sm`}>
             <div className="flex items-center gap-2">
               <span className={`font-bold uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1565C0]'}`}>STUDENT NAME:</span>
               <span className="flex-1 font-bold uppercase whitespace-normal leading-tight">{data.name}</span>
@@ -1009,7 +1013,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
         {/* 6. Result & Signatures Section */}
         <div className="flex flex-col shrink-0">
           <section className="mb-4">
-            <div className={`border-[1.5px] border-black ${s.resultPadding} text-center space-y-1 ${isBW ? 'bg-white' : 'bg-[#F5F9FF]'}`}>
+            <div className={`border-[1.5px] border-black ${s.resultPadding} text-center space-y-1 ${isBW ? 'bg-white' : 'bg-[#F5F9FF]'} shadow-sm`}>
               <p className="text-[13px] font-bold uppercase">
                 RESULT: <span className={isBW ? 'text-black' : 'text-[#C62828]'}>{data.result}</span> | PROMOTED TO: <span className={isBW ? 'text-black' : 'text-[#1565C0]'}>{data.promotedTo}</span>
               </p>
