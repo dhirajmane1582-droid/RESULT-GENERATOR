@@ -1002,7 +1002,7 @@ function ReportContent({ data, schoolName, udise, isBW = false }: { data: Studen
             </div>
             <div className="flex items-center gap-2">
               <span className={`font-bold uppercase whitespace-nowrap ${isBW ? 'text-black' : 'text-[#1565C0]'}`} style={{ letterSpacing: '0.05em' }}>D.O.B:</span>
-              <span className="flex-1 font-bold uppercase">{data.dob ? data.dob.split('-').reverse().join('') : ''}</span>
+              <span className="flex-1 font-bold uppercase">{data.dob ? data.dob.split('-').reverse().join('/') : ''}</span>
             </div>
           </div>
         </section>
