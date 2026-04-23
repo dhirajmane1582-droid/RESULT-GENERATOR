@@ -49,8 +49,11 @@ const getSubjects = (std: string, medium: 'English' | 'Semi'): string[] => {
   if (['NUR', 'JR. KG', 'SR. KG'].includes(std)) {
     return ['English', 'Maths', 'Drawing', 'Oral'];
   }
-  if (['1st', '2nd', '3rd', '4th'].includes(std)) {
+  if (['1st', '2nd'].includes(std)) {
     return ['English', 'Marathi', 'Hindi', 'Maths', 'E.V.S', 'Arts', 'W.E.', 'P.T.'];
+  }
+  if (['3rd', '4th'].includes(std)) {
+    return ['English', 'Marathi', 'Hindi', 'Maths', 'E.V.S. 1', 'E.V.S. 2', 'Arts', 'W.E.', 'P.T.'];
   }
   if (['5th', '6th', '7th', '8th', '9th'].includes(std)) {
     if (medium === 'English') {
